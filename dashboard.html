@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RWS AI Innovation Pipeline - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rws-blue: #003082;
+            --rws-blue-dark: #001f54;
+            --rws-blue-light: #1a4a9e;
+            --rws-yellow: #FFB612;
+            --rws-yellow-light: #FFD166;
+            --rws-green: #2da44e;
+            --rws-orange: #e67e22;
+            --rws-red: #cf222e;
+        }
+
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+        body {
+            background: #f0f2f5;
+            color: #1a1a2e;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        /* Card base */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.2s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Project cards */
+        .project-card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+            border-left: 4px solid transparent;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+        .project-card:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
+        }
+        .project-card.status-green { border-left-color: var(--rws-green); }
+        .project-card.status-orange { border-left-color: var(--rws-orange); }
+        .project-card.status-red { border-left-color: var(--rws-red); }
+
+        /* KPI circle */
+        .kpi-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .kpi-circle svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 44px;
+            height: 44px;
+            transform: rotate(-90deg);
+        }
+        .kpi-circle circle {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+        .kpi-circle .bg { stroke: #e5e7eb; }
+        .kpi-circle .progress { transition: stroke-dashoffset 1s ease; }
+
+        /* Kanban column */
+        .kanban-col {
+            min-width: 0;
+            flex: 1;
+        }
+        .kanban-col-header {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge-high { background: #fee2e2; color: #991b1b; }
+        .badge-limited { background: #fef3c7; color: #92400e; }
+
+        /* Status dot */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-green { background: var(--rws-green); }
+        .dot-orange { background: var(--rws-orange); }
+        .dot-red { background: var(--rws-red); }
+
+        /* Bar chart */
+        .bar-group { display: flex; align-items: flex-end; gap: 4px; height: 120px; }
+        .bar {
+            border-radius: 4px 4px 0 0;
+            min-width: 20px;
+            transition: height 1s ease;
+        }
+        .bar-expected { background: #c7d2fe; }
+        .bar-realized { background: var(--rws-blue); }
+
+        /* Progress bar */
+        .progress-bar-track {
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1.5s ease;
+            background: linear-gradient(90deg, var(--rws-blue), var(--rws-blue-light));
+        }
+
+        /* AI advisor messages */
+        .ai-message {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.5s ease;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+        .ai-message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Intake analysis animation */
+        .analysis-item {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s ease;
+        }
+        .analysis-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Analyseer button */
+        .btn-analyse {
+            background: var(--rws-blue);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-analyse:hover { background: var(--rws-blue-light); }
+        .btn-analyse:active { transform: scale(0.97); }
+        .btn-analyse:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        .btn-analyse.loading .spinner { display: block; }
+        .btn-analyse.loading .btn-text { display: none; }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Pulse for system status */
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--rws-green);
+            position: relative;
+        }
+        .pulse::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(45, 164, 78, 0.3);
+            animation: pulse-ring 2s ease infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        /* Header gradient */
+        .header-bg {
+            background: linear-gradient(135deg, var(--rws-blue) 0%, var(--rws-blue-dark) 100%);
+        }
+
+        /* Section title */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--rws-blue);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Fade-in on load */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(12px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Column count badge */
+        .col-count {
+            background: rgba(0, 48, 130, 0.08);
+            color: var(--rws-blue);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 9999px;
+        }
+
+        /* Subtle yellow accent bar */
+        .accent-bar {
+            height: 3px;
+            background: linear-gradient(90deg, var(--rws-yellow), var(--rws-yellow-light));
+            border-radius: 0 0 2px 2px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header -->
+    <header class="header-bg text-white shadow-lg">
+        <div class="accent-bar"></div>
+        <div class="max-w-screen-2xl mx-auto px-6 py-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-5">
+                    <!-- RWS-inspired logo mark -->
+                    <div class="flex items-center justify-center w-12 h-12 rounded-xl" style="background: var(--rws-yellow);">
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                            <path d="M4 20L14 6L24 20" stroke="#003082" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 24H24" stroke="#003082" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight">RWS AI Innovation Pipeline &mdash; Dashboard</h1>
+                        <p class="text-sm opacity-80 mt-0.5">Programma Data en AI &nbsp;|&nbsp; Centrale Informatievoorziening</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-6 text-sm">
+                    <div class="text-right opacity-80">
+                        <div class="font-medium" id="currentDate"></div>
+                        <div class="text-xs opacity-70">Q1 2026 &mdash; Rapportageperiode</div>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white bg-opacity-10 rounded-lg px-4 py-2">
+                        <div class="pulse"></div>
+                        <span class="text-xs font-medium">Systeem operationeel</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="max-w-screen-2xl mx-auto px-6 py-6">
+
+        <!-- Section 1: Portfolio Kanban -->
+        <section class="card p-6 mb-6 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="section-title">
+                <span class="icon" style="background: rgba(0,48,130,0.08);">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#003082"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="4" width="4" height="11" rx="1"/><rect x="11" y="2" width="4" height="13" rx="1"/></svg>
+                </span>
+                Portfolio Overzicht &mdash; Innovation Pipeline
+            </div>
+
+            <div class="grid grid-cols-4 gap-4">
+                <!-- Column: Idee -->
+                <div class="kanban-col">
+                    <div class="kanban-col-header" style="background: #f0f4ff; color: var(--rws-blue);">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+                        Idee
+                        <span class="col-count">2</span>
+                    </div>
+
+                    <!-- Waterweg Inspectie AI -->
+                    <div class="project-card status-green">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">Waterweg Inspectie AI</h4>
+                            <div class="status-dot dot-green mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle" style="color: #9ca3af;">
+                                <svg viewBox="0 0 44 44"><circle class="bg" cx="22" cy="22" r="18"/></svg>
+                                <span style="font-size:10px; color:#9ca3af;">n/a</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Verwachte baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;0,8M/jaar</div>
+                                <div class="text-xs text-gray-400">(geschat)</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-limited">Limited-risk</span>
+                    </div>
+
+                    <!-- Brugconditiemonitoring Sensordata -->
+                    <div class="project-card status-green">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">Brugconditiemonitoring Sensordata</h4>
+                            <div class="status-dot dot-green mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle" style="color: #9ca3af;">
+                                <svg viewBox="0 0 44 44"><circle class="bg" cx="22" cy="22" r="18"/></svg>
+                                <span style="font-size:10px; color:#9ca3af;">n/a</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Verwachte baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;0,6M/jaar</div>
+                                <div class="text-xs text-gray-400">(geschat)</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-limited">Limited-risk</span>
+                    </div>
+                </div>
+
+                <!-- Column: Pilot -->
+                <div class="kanban-col">
+                    <div class="kanban-col-header" style="background: #fff7ed; color: #9a3412;">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v12M1 7h12" stroke-linecap="round"/></svg>
+                        Pilot
+                        <span class="col-count" style="background: rgba(154,52,18,0.08); color: #9a3412;">3</span>
+                    </div>
+
+                    <!-- Digital Twins Tunnels -->
+                    <div class="project-card status-orange">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">Digital Twins Tunnels</h4>
+                            <div class="status-dot dot-orange mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle">
+                                <svg viewBox="0 0 44 44">
+                                    <circle class="bg" cx="22" cy="22" r="18"/>
+                                    <circle class="progress" cx="22" cy="22" r="18" stroke="var(--rws-orange)" stroke-dasharray="113.1" stroke-dashoffset="32.8"/>
+                                </svg>
+                                <span style="color: var(--rws-orange);">71%</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Verwachte baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;1,4M/jaar</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-high">High-risk</span>
+                    </div>
+
+                    <!-- AI Impulse Waterbeheer -->
+                    <div class="project-card status-green">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">AI Impulse Waterbeheer</h4>
+                            <div class="status-dot dot-green mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle">
+                                <svg viewBox="0 0 44 44">
+                                    <circle class="bg" cx="22" cy="22" r="18"/>
+                                    <circle class="progress" cx="22" cy="22" r="18" stroke="var(--rws-blue)" stroke-dasharray="113.1" stroke-dashoffset="39.6"/>
+                                </svg>
+                                <span style="color: var(--rws-blue);">65%</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Verwachte baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;3,2M/jaar</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-high">High-risk</span>
+                    </div>
+
+                    <!-- Stem van de Maas -->
+                    <div class="project-card status-green">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">Stem van de Maas/Dijk</h4>
+                            <div class="status-dot dot-green mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle">
+                                <svg viewBox="0 0 44 44">
+                                    <circle class="bg" cx="22" cy="22" r="18"/>
+                                    <circle class="progress" cx="22" cy="22" r="18" stroke="var(--rws-blue)" stroke-dasharray="113.1" stroke-dashoffset="50.9"/>
+                                </svg>
+                                <span style="color: var(--rws-blue);">55%</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Verwachte baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;1,1M/jaar</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-limited">Limited-risk</span>
+                    </div>
+                </div>
+
+                <!-- Column: Opschaling -->
+                <div class="kanban-col">
+                    <div class="kanban-col-header" style="background: #f0fdf4; color: #166534;">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L7 2L12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Opschaling
+                        <span class="col-count" style="background: rgba(22,101,52,0.08); color: #166534;">2</span>
+                    </div>
+
+                    <!-- DGAM Sluizenmonitoring -->
+                    <div class="project-card status-green">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">DGAM Sluizenmonitoring</h4>
+                            <div class="status-dot dot-green mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle">
+                                <svg viewBox="0 0 44 44">
+                                    <circle class="bg" cx="22" cy="22" r="18"/>
+                                    <circle class="progress" cx="22" cy="22" r="18" stroke="var(--rws-green)" stroke-dasharray="113.1" stroke-dashoffset="20.4"/>
+                                </svg>
+                                <span style="color: var(--rws-green);">82%</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Verwachte baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;2,1M/jaar</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-high">High-risk</span>
+                    </div>
+
+                    <!-- Brugconditie Monitoring -->
+                    <div class="project-card status-orange">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">Brugconditie Monitoring</h4>
+                            <div class="status-dot dot-orange mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle">
+                                <svg viewBox="0 0 44 44">
+                                    <circle class="bg" cx="22" cy="22" r="18"/>
+                                    <circle class="progress" cx="22" cy="22" r="18" stroke="var(--rws-orange)" stroke-dasharray="113.1" stroke-dashoffset="24.9"/>
+                                </svg>
+                                <span style="color: var(--rws-orange);">78%</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Verwachte baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;1,9M/jaar</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-high">High-risk</span>
+                    </div>
+                </div>
+
+                <!-- Column: Productie -->
+                <div class="kanban-col">
+                    <div class="kanban-col-header" style="background: #f0f0ff; color: #4338ca;">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l4 4L12 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Productie
+                        <span class="col-count" style="background: rgba(67,56,202,0.08); color: #4338ca;">2</span>
+                    </div>
+
+                    <!-- Beeldherkenning Verkeer AI -->
+                    <div class="project-card status-green">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">Beeldherkenning Verkeer AI</h4>
+                            <div class="status-dot dot-green mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle">
+                                <svg viewBox="0 0 44 44">
+                                    <circle class="bg" cx="22" cy="22" r="18"/>
+                                    <circle class="progress" cx="22" cy="22" r="18" stroke="var(--rws-green)" stroke-dasharray="113.1" stroke-dashoffset="10.2"/>
+                                </svg>
+                                <span style="color: var(--rws-green);">91%</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Gerealiseerde baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;4,8M/jaar</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-high">High-risk</span>
+                    </div>
+
+                    <!-- Weginspecteur Optimalisatie -->
+                    <div class="project-card status-green">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-sm font-semibold leading-tight" style="color: var(--rws-blue);">Weginspecteur Optimalisatie</h4>
+                            <div class="status-dot dot-green mt-1"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="kpi-circle">
+                                <svg viewBox="0 0 44 44">
+                                    <circle class="bg" cx="22" cy="22" r="18"/>
+                                    <circle class="progress" cx="22" cy="22" r="18" stroke="var(--rws-green)" stroke-dasharray="113.1" stroke-dashoffset="14.7"/>
+                                </svg>
+                                <span style="color: var(--rws-green);">87%</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Gerealiseerde baten</div>
+                                <div class="text-sm font-bold" style="color: var(--rws-blue);">&euro;1,2M/jaar</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-limited">Limited-risk</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Two-column layout -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+
+            <!-- AI Intake Analyse -->
+            <section class="card p-6 fade-in-up" style="animation-delay: 0.25s;">
+                <div class="section-title">
+                    <span class="icon" style="background: rgba(0,48,130,0.08);">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="#003082"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm2 8H6v-1c0-1.1.9-2 2-2s2 .9 2 2v1z"/></svg>
+                    </span>
+                    AI Intake Analyse
+                </div>
+
+                <!-- Input area -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">Nieuw voorstel</div>
+                    </div>
+                    <div class="font-semibold text-base mb-1" style="color: var(--rws-blue);">Satellite Dijkmonitoring met ML</div>
+                    <div class="text-xs text-gray-500 mb-3">Gebruik van satellietbeelden en machine learning voor continue monitoring van dijkstabiliteit en vroege detectie van verzakkingen.</div>
+                    <button class="btn-analyse" id="analyseBtn" onclick="runAnalysis()">
+                        <span class="btn-text">Analyseer voorstel</span>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
+
+                <!-- Analysis results -->
+                <div id="analysisResults" class="space-y-3" style="display:none;">
+                    <div class="analysis-item" data-delay="400">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Strategische fit</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full" style="width:87%; background: var(--rws-green);"></div>
+                                </div>
+                                <span class="text-sm font-bold" style="color: var(--rws-green);">87/100</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="analysis-item" data-delay="700">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Verwachte baten</span>
+                            <span class="text-sm font-bold" style="color: var(--rws-blue);">&euro;1,6M/jaar</span>
+                        </div>
+                    </div>
+                    <div class="analysis-item" data-delay="1000">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Benodigde resources</span>
+                            <span class="text-xs font-medium text-gray-700">2 data scientists, 1 data engineer, 6 mnd</span>
+                        </div>
+                    </div>
+                    <div class="analysis-item" data-delay="1300">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">EU AI Act classificatie</span>
+                            <div>
+                                <span class="badge badge-high">High-risk</span>
+                                <div class="text-xs text-gray-400 mt-1 text-right">veiligheidscomponent dijkbeheer</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="analysis-item" data-delay="1700">
+                        <div class="p-4 rounded-lg border-2" style="background: rgba(0,48,130,0.03); border-color: var(--rws-blue);">
+                            <div class="flex items-center gap-2 mb-1">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--rws-yellow)"><path d="M8 1l2.47 5.01L16 6.76l-4 3.9.94 5.5L8 13.38l-4.94 2.78.94-5.5-4-3.9 5.53-.75z"/></svg>
+                                <span class="text-sm font-bold" style="color: var(--rws-blue);">Aanbeveling</span>
+                            </div>
+                            <div class="text-sm" style="color: var(--rws-blue);">
+                                Prioriteit: <strong>HOOG</strong> &mdash; past bij DGAM roadmap en nationale Deltaprogramma doelstellingen
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Baten-Monitor -->
+            <section class="card p-6 fade-in-up" style="animation-delay: 0.35s;">
+                <div class="section-title">
+                    <span class="icon" style="background: rgba(0,48,130,0.08);">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="#003082"><rect x="1" y="8" width="3" height="7" rx="0.5"/><rect x="5.5" y="5" width="3" height="10" rx="0.5"/><rect x="10" y="2" width="3" height="13" rx="0.5"/></svg>
+                    </span>
+                    Baten-Monitor
+                </div>
+
+                <!-- Total value -->
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <div class="text-xs text-gray-500 mb-0.5">Totale portfoliowaarde</div>
+                        <div class="text-2xl font-bold" style="color: var(--rws-blue);">&euro;17,1M<span class="text-base font-medium text-gray-400">/jaar</span></div>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex items-center gap-1 justify-end">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="var(--rws-green)"><path d="M7 2l5 8H2z"/></svg>
+                            <span class="text-sm font-bold" style="color: var(--rws-green);">+23%</span>
+                        </div>
+                        <div class="text-xs text-gray-400">t.o.v. vorig kwartaal</div>
+                    </div>
+                </div>
+
+                <!-- Bar chart -->
+                <div class="mb-5">
+                    <div class="flex items-end justify-between gap-2" style="height: 130px;">
+                        <!-- Verkeersh. -->
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="flex items-end gap-1 w-full justify-center" style="height: 110px;">
+                                <div class="bar bar-expected" style="width:40%; height:100%;"></div>
+                                <div class="bar bar-realized" style="width:40%; height:92%;"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 truncate w-full text-center" title="Beeldherkenning Verkeer">Beeldh. Verk.</div>
+                        </div>
+                        <!-- AI Impulse -->
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="flex items-end gap-1 w-full justify-center" style="height: 110px;">
+                                <div class="bar bar-expected" style="width:40%; height:67%;"></div>
+                                <div class="bar bar-realized" style="width:40%; height:42%;"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 truncate w-full text-center" title="AI Impulse Waterbeheer">AI Impulse</div>
+                        </div>
+                        <!-- DGAM -->
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="flex items-end gap-1 w-full justify-center" style="height: 110px;">
+                                <div class="bar bar-expected" style="width:40%; height:44%;"></div>
+                                <div class="bar bar-realized" style="width:40%; height:35%;"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 truncate w-full text-center" title="DGAM Sluizenmonitoring">DGAM</div>
+                        </div>
+                        <!-- Brugcond. -->
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="flex items-end gap-1 w-full justify-center" style="height: 110px;">
+                                <div class="bar bar-expected" style="width:40%; height:40%;"></div>
+                                <div class="bar bar-realized" style="width:40%; height:27%;"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 truncate w-full text-center" title="Brugconditie Monitoring">Brugcond.</div>
+                        </div>
+                        <!-- Digital Tw. -->
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="flex items-end gap-1 w-full justify-center" style="height: 110px;">
+                                <div class="bar bar-expected" style="width:40%; height:29%;"></div>
+                                <div class="bar bar-realized" style="width:40%; height:15%;"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 truncate w-full text-center" title="Digital Twins Tunnels">Dig. Twins</div>
+                        </div>
+                        <!-- Waterweg -->
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <div class="flex items-end gap-1 w-full justify-center" style="height: 110px;">
+                                <div class="bar bar-expected" style="width:40%; height:17%;"></div>
+                                <div class="bar bar-realized" style="width:40%; height:0%; min-height:2px; opacity:0.3;"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 truncate w-full text-center" title="Waterweg Inspectie AI">Waterweg</div>
+                        </div>
+                    </div>
+                    <!-- Legend -->
+                    <div class="flex items-center gap-4 mt-3 justify-end">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-3 h-3 rounded-sm bar-expected"></div>
+                            <span class="text-xs text-gray-500">Verwacht</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-3 h-3 rounded-sm bar-realized"></div>
+                            <span class="text-xs text-gray-500">Gerealiseerd</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productivity goal -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-sm font-medium text-gray-700">Voortgang productiedoel (structurele productiviteitswinst)</div>
+                        <span class="text-sm font-bold" style="color: var(--rws-blue);">67%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="productivityBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-2">Doel: significante productieverhoging &mdash; capaciteit vrijmaken voor groeiende opgave door AI-toepassingen</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Section 3: Active AI Agents -->
+        <section class="card p-6 mb-6 fade-in-up" style="animation-delay: 0.42s;">
+            <div class="section-title">
+                <span class="icon" style="background: rgba(0,48,130,0.08);">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#003082"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.5 3h1v5h-1V4zm0 6h1v1h-1v-1z"/></svg>
+                </span>
+                24/7 AI Agent Lab &mdash; Actieve Agents
+                <span class="text-xs font-normal text-gray-400 ml-2">Continu draaiend | Data scientists als orchestrators</span>
+            </div>
+            <div class="grid grid-cols-4 gap-3">
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="pulse" style="width:6px;height:6px;"></div>
+                        <span class="text-xs font-bold" style="color: var(--rws-blue);">Intake Agent</span>
+                    </div>
+                    <div class="text-xs text-gray-500">Analyseert nieuwe voorstellen, berekent strategische fit en verwachte baten. Draait continu.</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="pulse" style="width:6px;height:6px;"></div>
+                        <span class="text-xs font-bold" style="color: var(--rws-blue);">Monitor Agent</span>
+                    </div>
+                    <div class="text-xs text-gray-500">Bewaakt KPI's, signaleert afwijkingen, genereert weekrapportages. Real-time portfoliobewaking.</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="pulse" style="width:6px;height:6px;"></div>
+                        <span class="text-xs font-bold" style="color: var(--rws-blue);">Experiment Agent</span>
+                    </div>
+                    <div class="text-xs text-gray-500">Nachtelijke experiment-loops (AutoResearch-patroon). Test modelverbeteringen, rapporteert resultaten bij ochtendstart.</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="pulse" style="width:6px;height:6px;"></div>
+                        <span class="text-xs font-bold" style="color: var(--rws-blue);">Compliance Agent</span>
+                    </div>
+                    <div class="text-xs text-gray-500">Bewaakt EU AI Act conformiteit, signaleert FRIA-deadlines, controleert Algoritmeregister-registratie.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: AI Advisor Panel -->
+        <section class="card p-6 mb-6 fade-in-up" style="animation-delay: 0.45s;">
+            <div class="section-title">
+                <span class="icon" style="background: rgba(0,48,130,0.08);">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#003082"><path d="M8 1C4.13 1 1 3.58 1 6.75c0 1.83 1.12 3.46 2.86 4.5L3 14.5l3.36-1.68C6.88 12.94 7.43 13 8 13c3.87 0 7-2.58 7-5.75S11.87 1 8 1z"/></svg>
+                </span>
+                AI Advisor &mdash; Proactieve Aanbevelingen
+                <span class="text-xs font-normal text-gray-400 ml-2">Automatisch gegenereerd op basis van portfoliodata</span>
+            </div>
+
+            <div id="advisorMessages" class="space-y-2">
+                <div class="ai-message" data-delay="600">
+                    &#x1F7E2; <strong>Brugconditie Monitoring</strong> is klaar voor opschaling &mdash; 3 pilots succesvol afgerond bij A2/A12/A27. Sensor- en weerdata-integratie voor brugconditiemonitoring kan als uitbreiding worden meegenomen.
+                </div>
+                <div class="ai-message" data-delay="1200">
+                    &#x1F534; <strong>EU AI Act deadline aug 2026:</strong> 4 high-risk projecten vereisen Fundamental Rights Impact Assessment. Beeldherkenning Verkeer AI en DGAM hebben hoogste prioriteit.
+                </div>
+                <div class="ai-message" data-delay="1800">
+                    &#x1F7E1; <strong>Stem van de Maas/Dijk:</strong> pilot toont potentie voor burgercommunicatie &eacute;n interne besluitvorming dijkbeheer &mdash; overweeg koppeling met Digital Twin Basisvoorziening 3D.
+                </div>
+                <div class="ai-message" data-delay="2400">
+                    &#x1F7E2; <strong>DGAM Sluizenmonitoring:</strong> faalmechanisme-detectie verbeterd na recalibratie sensoren &mdash; model nauwkeurigheid +4%. Op schema voor productiviteitsdoelstelling.
+                </div>
+                <div class="ai-message" data-delay="3000">
+                    &#x1F535; <strong>Aanbeveling:</strong> Weginspecteur Optimalisatie is stabiel in productie (responstijd -8 min). Capaciteit herverdelen: 1 data scientist naar Brugconditie Monitoring opschaling.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: System Status -->
+        <footer class="fade-in-up" style="animation-delay: 0.55s;">
+            <div class="flex items-center justify-between text-xs text-gray-400 px-2 pb-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1.5">
+                        <div class="pulse" style="width:6px;height:6px;"></div>
+                        <span><strong class="text-gray-500">7 AI agents</strong> actief</span>
+                    </div>
+                    <span class="text-gray-300">|</span>
+                    <span>Nachtelijke experiment-loop: <strong class="text-gray-500">23 runs</strong> voltooid (laatste: 04:12)</span>
+                    <span class="text-gray-300">|</span>
+                    <span>Intake-nauwkeurigheid: <strong class="text-gray-500">87%</strong> (was 72% bij lancering)</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span>Systeemversie 2.3 &mdash; Zelfverbetering: Mistral 3.0 + AutoResearch loop</span>
+                    <span class="text-gray-300">|</span>
+                    <span>Volgende evaluatie: april 2026</span>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Set current date
+        (function() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const now = new Date();
+            document.getElementById('currentDate').textContent =
+                now.toLocaleDateString('nl-NL', options).replace(/^\w/, c => c.toUpperCase());
+        })();
+
+        // Animate productivity bar on load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('productivityBar').style.width = '67%';
+            }, 500);
+        });
+
+        // Animate AI advisor messages on load
+        window.addEventListener('load', function() {
+            const messages = document.querySelectorAll('.ai-message');
+            messages.forEach(function(msg) {
+                const delay = parseInt(msg.getAttribute('data-delay')) || 0;
+                setTimeout(function() {
+                    msg.classList.add('visible');
+                }, delay);
+            });
+        });
+
+        // AI Intake Analysis
+        function runAnalysis() {
+            const btn = document.getElementById('analyseBtn');
+            const results = document.getElementById('analysisResults');
+
+            // Disable button and show spinner
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            // Show results container
+            results.style.display = 'block';
+
+            // Reset all items
+            const items = results.querySelectorAll('.analysis-item');
+            items.forEach(function(item) {
+                item.classList.remove('visible');
+            });
+
+            // Simulate processing delay, then reveal items one by one
+            setTimeout(function() {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btn.querySelector('.btn-text').textContent = 'Opnieuw analyseren';
+
+                items.forEach(function(item) {
+                    const delay = parseInt(item.getAttribute('data-delay')) || 0;
+                    setTimeout(function() {
+                        item.classList.add('visible');
+                    }, delay);
+                });
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

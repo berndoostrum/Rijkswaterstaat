@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visie Programmamanager Data & AI — Bernd Oostrum</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────── */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue:    #003082;
+    --blue-d:  #001f54;
+    --blue-l:  #0045b5;
+    --yellow:  #FFB612;
+    --yellow-l:#FFD166;
+    --white:   #ffffff;
+    --gray-1:  #f5f6fa;
+    --gray-2:  #e8eaf0;
+    --gray-3:  #6b7280;
+    --gray-4:  #374151;
+    --text:    #1e293b;
+    --shadow:  0 2px 12px rgba(0,48,130,.10);
+    --radius:  10px;
+  }
+
+  html, body {
+    height: 100%; width: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--blue-d);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Progress bar (top) ───────────────────────────────── */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px;
+    background: var(--yellow);
+    z-index: 1000;
+    transition: width .45s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── Slide counter (bottom-right) ─────────────────────── */
+  #counter {
+    position: fixed; bottom: 24px; right: 32px;
+    font-size: .95rem; font-weight: 600;
+    color: rgba(255,255,255,.55);
+    z-index: 1000;
+    letter-spacing: .5px;
+    transition: color .3s;
+  }
+  #counter.light { color: rgba(0,48,130,.35); }
+
+  /* ── Nav hint ─────────────────────────────────────────── */
+  #nav-hint {
+    position: fixed; bottom: 24px; left: 32px;
+    font-size: .8rem; color: rgba(255,255,255,.35);
+    z-index: 1000;
+    transition: opacity 1.5s;
+  }
+  #nav-hint.light { color: rgba(0,48,130,.25); }
+
+  /* ── Slides wrapper ───────────────────────────────────── */
+  #deck {
+    position: relative;
+    width: 100%; height: 100%;
+  }
+
+  .slide {
+    position: absolute; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity .5s cubic-bezier(.4,0,.2,1),
+                transform .5s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.exit-left {
+    opacity: 0; transform: translateX(-60px);
+  }
+
+  /* ── Header bar ───────────────────────────────────────── */
+  .slide-header {
+    background: var(--blue);
+    padding: 28px 64px 22px;
+    flex-shrink: 0;
+  }
+  .slide-header h1 {
+    color: var(--white);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -.5px;
+  }
+  .slide-header .subtitle {
+    color: var(--yellow);
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* ── Slide body ───────────────────────────────────────── */
+  .slide-body {
+    flex: 1;
+    padding: 36px 64px 28px;
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    overflow: hidden;
+  }
+  .slide-body.dark {
+    background: var(--blue-d);
+    color: var(--white);
+  }
+
+  /* ── Reusable: card grid ──────────────────────────────── */
+  .card-grid {
+    display: grid;
+    gap: 20px;
+    flex: 1;
+  }
+  .card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .card-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    background: var(--gray-1);
+    border-radius: var(--radius);
+    padding: 24px 22px;
+    border-left: 4px solid var(--yellow);
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow);
+  }
+  .card .card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+  .card h3 {
+    font-size: 1.0rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 6px;
+    line-height: 1.25;
+  }
+  .card p {
+    font-size: .88rem;
+    color: var(--gray-4);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  /* ── Highlight box ────────────────────────────────────── */
+  .highlight-box {
+    background: var(--blue);
+    color: var(--white);
+    border-radius: var(--radius);
+    padding: 18px 26px;
+    margin-top: auto;
+    font-size: .92rem;
+    line-height: 1.55;
+    box-shadow: var(--shadow);
+  }
+  .highlight-box strong { color: var(--yellow); }
+
+  .highlight-box.yellow {
+    background: var(--yellow);
+    color: var(--blue-d);
+  }
+  .highlight-box.yellow strong { color: var(--blue); }
+
+  /* ── Warning badge ────────────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #dc2626;
+    color: var(--white);
+    font-size: .82rem;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 6px;
+    margin-top: 14px;
+    width: fit-content;
+  }
+  .badge::before { content: "\26A0"; font-size: 1rem; }
+
+  /* ── Reference note ───────────────────────────────────── */
+  .ref-note {
+    font-size: .82rem;
+    color: var(--gray-3);
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  /* ── Timeline (Slide 2) ───────────────────────────────── */
+  .timeline {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0;
+    flex: 1;
+    padding: 20px 0 10px;
+  }
+  .timeline-phase {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 0 18px;
+  }
+  .phase-icon {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.4rem;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 20px rgba(0,48,130,.18);
+  }
+  .phase-icon.f1 { background: var(--blue); color: var(--white); }
+  .phase-icon.f2 { background: var(--yellow); color: var(--blue-d); }
+  .phase-icon.f3 { background: linear-gradient(135deg, var(--blue), var(--blue-l)); color: var(--white); }
+
+  .phase-label {
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-3);
+    margin-bottom: 4px;
+  }
+  .phase-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+  .phase-period {
+    font-size: .88rem;
+    color: var(--gray-3);
+    margin-bottom: 12px;
+  }
+  .phase-tagline {
+    font-size: .92rem;
+    color: var(--gray-4);
+    line-height: 1.5;
+    max-width: 260px;
+  }
+
+  /* Arrow connector */
+  .timeline-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 60px;
+    z-index: 1;
+  }
+  .timeline-arrow svg {
+    width: 48px; height: 24px;
+    fill: none;
+    stroke: var(--yellow);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ── Circular flow (Slide 5) ──────────────────────────── */
+  .flow-section {
+    display: flex;
+    gap: 32px;
+    flex: 1;
+    align-items: stretch;
+  }
+  .flow-diagram {
+    flex: 0 0 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .flow-cards {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* Circle flow visual */
+  .circle-flow {
+    position: relative;
+    width: 300px; height: 300px;
+  }
+  .circle-flow svg {
+    width: 100%; height: 100%;
+  }
+  .flow-step {
+    position: absolute;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--blue);
+    text-align: center;
+    width: 80px;
+    line-height: 1.25;
+  }
+  .flow-step.top    { top: -4px;  left: 50%; transform: translateX(-50%); }
+  .flow-step.tr     { top: 30px;  right: -22px; }
+  .flow-step.br     { bottom: 30px; right: -22px; }
+  .flow-step.bottom { bottom: -4px; left: 50%; transform: translateX(-50%); }
+  .flow-step.bl     { bottom: 30px; left: -22px; }
+  .flow-step.tl     { top: 30px;  left: -22px; }
+
+  /* ── Proof points (Slide 6) ───────────────────────────── */
+  .proof-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+  }
+  .proof-card {
+    background: var(--gray-1);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    box-shadow: var(--shadow);
+    border-bottom: 3px solid var(--yellow);
+  }
+  .proof-card .proof-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    background: var(--blue);
+    color: var(--white);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .proof-card h3 {
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .proof-card p {
+    font-size: .84rem;
+    color: var(--gray-4);
+    line-height: 1.5;
+  }
+  .proof-card.span-2 {
+    grid-column: 1 / -1;
+  }
+
+  .closing-quote {
+    background: var(--blue);
+    color: var(--white);
+    border-radius: var(--radius);
+    padding: 18px 28px;
+    font-size: .95rem;
+    line-height: 1.55;
+    margin-top: auto;
+    text-align: center;
+    font-style: italic;
+    box-shadow: var(--shadow);
+  }
+  .closing-quote strong { color: var(--yellow); font-style: normal; }
+
+  /* ── Overview mode ────────────────────────────────────── */
+  #overview {
+    position: fixed; inset: 0;
+    background: rgba(0,20,60,.92);
+    z-index: 2000;
+    display: none;
+    padding: 48px;
+    overflow-y: auto;
+  }
+  #overview.open { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; align-content: start; }
+  .overview-thumb {
+    aspect-ratio: 16/9;
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(0,0,0,.3);
+    transition: transform .2s, box-shadow .2s;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .overview-thumb:hover { transform: scale(1.04); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+  .overview-thumb.current { outline: 3px solid var(--yellow); outline-offset: 3px; }
+  .overview-thumb .thumb-header {
+    background: var(--blue);
+    padding: 10px 16px;
+    flex-shrink: 0;
+  }
+  .overview-thumb .thumb-header h3 {
+    color: var(--white);
+    font-size: .75rem;
+    font-weight: 700;
+  }
+  .overview-thumb .thumb-body {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: .55rem;
+    color: var(--gray-4);
+    line-height: 1.4;
+  }
+  .overview-thumb .thumb-num {
+    position: absolute; bottom: 8px; right: 10px;
+    font-size: .65rem; font-weight: 700; color: var(--gray-3);
+  }
+
+  /* ── Animations ───────────────────────────────────────── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .slide.active .card,
+  .slide.active .highlight-box,
+  .slide.active .badge,
+  .slide.active .timeline-phase,
+  .slide.active .proof-card,
+  .slide.active .closing-quote,
+  .slide.active .flow-section {
+    animation: fadeInUp .5s ease both;
+  }
+  .slide.active .card:nth-child(1),
+  .slide.active .timeline-phase:nth-child(1),
+  .slide.active .proof-card:nth-child(1) { animation-delay: .08s; }
+  .slide.active .card:nth-child(2),
+  .slide.active .timeline-phase:nth-child(2),
+  .slide.active .proof-card:nth-child(2) { animation-delay: .16s; }
+  .slide.active .card:nth-child(3),
+  .slide.active .timeline-phase:nth-child(3),
+  .slide.active .proof-card:nth-child(3) { animation-delay: .24s; }
+  .slide.active .card:nth-child(4),
+  .slide.active .proof-card:nth-child(4) { animation-delay: .32s; }
+  .slide.active .card:nth-child(5),
+  .slide.active .proof-card:nth-child(5) { animation-delay: .40s; }
+  .slide.active .highlight-box { animation-delay: .35s; }
+  .slide.active .badge { animation-delay: .42s; }
+  .slide.active .closing-quote { animation-delay: .45s; }
+
+  /* ── Responsive tweaks for smaller laptops ────────────── */
+  @media (max-height: 760px) {
+    .slide-header { padding: 20px 48px 16px; }
+    .slide-header h1 { font-size: 1.65rem; }
+    .slide-body { padding: 24px 48px 20px; }
+    .card { padding: 16px 16px; }
+    .card h3 { font-size: .9rem; }
+    .card p { font-size: .8rem; }
+    .highlight-box { padding: 14px 20px; font-size: .85rem; }
+    .phase-icon { width: 70px; height: 70px; font-size: 1.9rem; }
+    .phase-title { font-size: 1.15rem; }
+  }
+  @media (max-height: 650px) {
+    .slide-header { padding: 14px 40px 12px; }
+    .slide-header h1 { font-size: 1.45rem; }
+    .slide-body { padding: 16px 40px 14px; }
+    .card-grid { gap: 12px; }
+    .card { padding: 12px 14px; }
+    .card h3 { font-size: .84rem; }
+    .card p { font-size: .76rem; }
+    .card .card-icon { font-size: 1.2rem; margin-bottom: 4px; }
+    .highlight-box { padding: 12px 16px; font-size: .8rem; }
+    .proof-card { padding: 14px 16px; }
+    .proof-card h3 { font-size: .84rem; }
+    .proof-card p { font-size: .76rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="progress" style="width:16.67%"></div>
+
+<!-- Slide counter -->
+<div id="counter">1 / 6</div>
+
+<!-- Nav hint -->
+<div id="nav-hint">Pijltjestoetsen &#8592; &#8594; &nbsp;|&nbsp; Esc = overzicht</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SLIDE 1 — De Opgave
+     ════════════════════════════════════════════════════════ -->
+<div id="deck">
+<section class="slide active" data-slide="1">
+  <div class="slide-header">
+    <h1>De Opgave van Rijkswaterstaat</h1>
+  </div>
+  <div class="slide-body">
+    <div class="card-grid cols-3" style="flex: 0 1 auto;">
+      <div class="card">
+        <div class="card-icon">&#x1F3D7;</div>
+        <h3>3x grotere opgave</h3>
+        <p>Vergrijzende infrastructuur, groeiende productieopgave. De achterstand loopt op terwijl de ambities toenemen.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x1F4C9;</div>
+        <h3>Beperkt budget &amp; capaciteit</h3>
+        <p>10.000 medewerkers, maar onvoldoende technisch specialisten. 95% van AI-pilots mislukt landelijk &mdash; hoe verhoog je het slagingspercentage?</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x1F30D;</div>
+        <h3>Toenemende complexiteit</h3>
+        <p>Klimaatverandering, intensiever gebruik, hogere verwachtingen. En: het probleem is niet de technologie &mdash; het is de organisatie aanpassen.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box yellow" style="margin-top:24px;">
+      <strong>Ambitie:</strong> Substantieel meer productie via Data &amp; AI &mdash; significante capaciteit vrijspelen voor de groeiende opgave
+    </div>
+    <div class="badge">EU AI Act &mdash; High-risk deadline: augustus 2026</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SLIDE 2 — Het Evolutiepad
+     ════════════════════════════════════════════════════════ -->
+<section class="slide" data-slide="2">
+  <div class="slide-header">
+    <h1>Het Evolutiepad</h1>
+    <div class="subtitle">Van fundament naar transformatie</div>
+  </div>
+  <div class="slide-body">
+    <div class="timeline">
+      <!-- Phase 1 -->
+      <div class="timeline-phase">
+        <div class="phase-icon f1">&#x1F3DB;</div>
+        <div class="phase-label">Fase 1</div>
+        <div class="phase-title">Fundament</div>
+        <div class="phase-period">Dag 1 &ndash; 90</div>
+        <div class="phase-tagline">Portfolio begrijpen, stakeholders verbinden, quick wins realiseren</div>
+      </div>
+
+      <div class="timeline-arrow">
+        <svg viewBox="0 0 48 24"><polyline points="4,12 36,12"/><polyline points="30,5 38,12 30,19"/></svg>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="timeline-phase">
+        <div class="phase-icon f2">&#x1F680;</div>
+        <div class="phase-label">Fase 2</div>
+        <div class="phase-title">Versnelling</div>
+        <div class="phase-period">Maand 3 &ndash; 9</div>
+        <div class="phase-tagline">Van experiment naar operationeel, governance inrichten, opschalen</div>
+      </div>
+
+      <div class="timeline-arrow">
+        <svg viewBox="0 0 48 24"><polyline points="4,12 36,12"/><polyline points="30,5 38,12 30,19"/></svg>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="timeline-phase">
+        <div class="phase-icon f3">&#x1F9E0;</div>
+        <div class="phase-label">Fase 3</div>
+        <div class="phase-title">Transformatie</div>
+        <div class="phase-period">Jaar 1 &ndash; 2</div>
+        <div class="phase-tagline">AI Innovation Pipeline: zelflerend, proactief, continu verbeterend</div>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="text-align:center;">
+      Elke fase bouwt voort op de vorige &mdash; <strong>geen big bang, maar gecontroleerde evolutie</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SLIDE 3 — Fase 1: Fundament
+     ════════════════════════════════════════════════════════ -->
+<section class="slide" data-slide="3">
+  <div class="slide-header">
+    <h1>Fase 1: Fundament</h1>
+    <div class="subtitle">De eerste 90 dagen</div>
+  </div>
+  <div class="slide-body">
+    <div class="card-grid cols-4" style="flex: 0 1 auto;">
+      <div class="card">
+        <div class="card-icon">&#x1F5FA;</div>
+        <h3>Portfolio in kaart</h3>
+        <p>Alle lopende projecten: DGAM sluizen/bruggen, Digital Twins, AI&nbsp;Impulse Water, Verkeersherkenning, Weginspecteurs, Brugkoeling, Stem van de Maas.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x1F4CA;</div>
+        <h3>Slim batenmanagement</h3>
+        <p>Niet 1,5 jaar een business case maken, maar snel starten, goed monitoren en tijdig bijstellen.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x26A1;</div>
+        <h3>Quick wins &amp; goede voorbeelden</h3>
+        <p>Successen zichtbaar maken &mdash; weginspecteur-optimalisatie, brugkoeling met sensoren. Goede voorbeelden inspireren de organisatie.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x1F91D;</div>
+        <h3>E&eacute;n loket, &eacute;&eacute;n team</h3>
+        <p>Nieuwe afdeling: datalab + Digital Twins + sensoring + AI. Kristallisatiepunt en aanjager voor de hele organisatie.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:24px;">
+      <strong>Kernvraag:</strong> Waar zitten de weerstanden? Wie zijn de early adopters? Welke processen moeten veranderen om AI-innovaties te laten landen?
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SLIDE 4 — Fase 2: Versnelling
+     ════════════════════════════════════════════════════════ -->
+<section class="slide" data-slide="4">
+  <div class="slide-header">
+    <h1>Fase 2: Versnelling</h1>
+    <div class="subtitle">Van experiment naar operationeel</div>
+  </div>
+  <div class="slide-body">
+    <div class="card-grid cols-4" style="flex: 0 1 auto;">
+      <div class="card">
+        <div class="card-icon">&#x1F916;</div>
+        <h3>AI-geassisteerde intake</h3>
+        <p>Geautomatiseerde analyse van nieuwe projectvoorstellen op strategische fit en verwachte baten.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x1F4C8;</div>
+        <h3>Voortgangsmonitoring</h3>
+        <p>Real-time dashboards, geautomatiseerde rapportages, afwijkingssignalering.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x1F6E1;</div>
+        <h3>EU AI Act governance</h3>
+        <p>FRIA's uitvoeren, EU-database registratie voorbereiden, high-risk classificatie-protocol.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#x1F4F6;</div>
+        <h3>Opschalingsprotocol</h3>
+        <p>Gestructureerd pad van experiment &#8594; pilot &#8594; opschaling &#8594; productie.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:24px;">
+      <strong>&ldquo;Het grootste probleem zit niet in het ontwikkelen en de technologie. Het zit in het echt gaan gebruiken.&rdquo;</strong> &mdash; Van de top tot de werkvloer: 10.000 medewerkers meenemen in een nieuwe mindset.
+    </div>
+    <div class="ref-note">Odido-parallel: daar stond ik voor dezelfde uitdaging &mdash; AI van PoC naar productie voor 6.9M klanten. Niet in experimenten blijven hangen, maar de slag naar gebruik maken.</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SLIDE 5 — Fase 3: Transformatie
+     ════════════════════════════════════════════════════════ -->
+<section class="slide" data-slide="5">
+  <div class="slide-header">
+    <h1>Fase 3: Transformatie</h1>
+    <div class="subtitle">De AI Innovation Pipeline</div>
+  </div>
+  <div class="slide-body">
+    <div class="flow-section">
+      <!-- Circular flow diagram -->
+      <div class="flow-diagram">
+        <div class="circle-flow">
+          <svg viewBox="0 0 300 300">
+            <!-- Outer ring -->
+            <circle cx="150" cy="150" r="115" fill="none" stroke="#e8eaf0" stroke-width="18" />
+            <!-- Animated arc -->
+            <circle cx="150" cy="150" r="115" fill="none"
+                    stroke="url(#grad)" stroke-width="18"
+                    stroke-dasharray="650 73"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round"
+                    transform="rotate(-90 150 150)" />
+            <!-- Arrow heads on ring -->
+            <polygon points="150,28 158,44 142,44" fill="var(--yellow)" />
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#003082"/>
+                <stop offset="50%" stop-color="#FFB612"/>
+                <stop offset="100%" stop-color="#003082"/>
+              </linearGradient>
+            </defs>
+            <!-- Center text -->
+            <text x="150" y="142" text-anchor="middle" fill="#003082" font-size="14" font-weight="800">AI Innovation</text>
+            <text x="150" y="164" text-anchor="middle" fill="#003082" font-size="14" font-weight="800">Pipeline</text>
+          </svg>
+          <!-- Step labels -->
+          <div class="flow-step top" style="color:var(--blue);">Nieuw voorstel</div>
+          <div class="flow-step tr">AI Analyse</div>
+          <div class="flow-step br">Prioritering</div>
+          <div class="flow-step bottom" style="color:var(--yellow);">Uitvoering</div>
+          <div class="flow-step bl">Evaluatie</div>
+          <div class="flow-step tl">Leren</div>
+        </div>
+      </div>
+
+      <!-- Capability cards -->
+      <div class="flow-cards">
+        <div class="card">
+          <div class="card-icon">&#x1F916;</div>
+          <h3>24/7 AI Agent Lab</h3>
+          <p>AI agents draaien continu: intake-analyse, voortgangsmonitoring, nachtelijke experiment-loops. Het &eacute;&eacute;n-loket wordt always-on.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">&#x1F504;</div>
+          <h3>Zelfverbetering</h3>
+          <p>Claude Code schrijft grotendeels zichzelf. Karpathy's AutoResearch draait autonoom experimenten per nacht. Dit patroon passen wij toe op het RWS AI Lab.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">&#x1F1EA;&#x1F1FA;</div>
+          <h3>Europees-soeverein</h3>
+          <p>Mistral, GAIA-X, EuroHPC Groningen, GPT-NL &mdash; data blijft onder Nederlandse jurisdictie.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">&#x1F3AF;</div>
+          <h3>Van builders naar orchestrators</h3>
+          <p>Data scientists worden AI-managers. Minder zelf coderen, meer sturen, evalueren en kwaliteit borgen &mdash; net als bij Anthropic.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SLIDE 6 — Waarom Ik
+     ════════════════════════════════════════════════════════ -->
+<section class="slide" data-slide="6">
+  <div class="slide-header">
+    <h1>Waarom Bernd Oostrum</h1>
+  </div>
+  <div class="slide-body">
+    <div class="proof-grid">
+      <div class="proof-card">
+        <div class="proof-icon">&#x1F4F1;</div>
+        <div>
+          <h3>Odido</h3>
+          <p>AI van PoCs naar productie opgeschaald voor 6.9M klanten. Van experimenteerfase naar operationele waarde.</p>
+        </div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-icon">&#x1F3DB;</div>
+        <div>
+          <h3>a.s.r.</h3>
+          <p>Overheidscontext: data-uitwisseling met Belastingdienst en UWV. Begrijpt publieke sector governance.</p>
+        </div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-icon">&#x1F30D;</div>
+        <div>
+          <h3>Internationale ervaring</h3>
+          <p>AI-teams aangestuurd vanuit San Francisco en Bangalore. Wereldwijde best practices vertaald naar lokale context.</p>
+        </div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-icon">&#x1F504;</div>
+        <div>
+          <h3>Technisch + bestuurlijk</h3>
+          <p>De brug tussen het lab en de directie. Kan zowel met data scientists als met bestuurders het gesprek voeren.</p>
+        </div>
+      </div>
+      <div class="proof-card span-2">
+        <div class="proof-icon">&#x1F393;</div>
+        <div>
+          <h3>Stanford AI/ML + Politicologie</h3>
+          <p>Unieke combinatie van technologisch begrip en beleidsmatig denken. Precies wat deze rol vraagt.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="closing-quote">
+      De grootste uitdaging is niet de technologie &mdash; het is <strong>de organisatie aanpassen op AI-innovaties</strong>. Daar ligt mijn kracht.
+    </div>
+  </div>
+</section>
+</div><!-- /deck -->
+
+<!-- ════════════════════════════════════════════════════════
+     OVERVIEW (Escape)
+     ════════════════════════════════════════════════════════ -->
+<div id="overview"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  const slides  = Array.from(document.querySelectorAll('.slide'));
+  const total   = slides.length;
+  const progress = document.getElementById('progress');
+  const counter  = document.getElementById('counter');
+  const navHint  = document.getElementById('nav-hint');
+  const overview = document.getElementById('overview');
+  let current = 0;
+  let overviewOpen = false;
+
+  /* ── Show a slide ──────────────────────────────────────── */
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    const dir = n > current ? 1 : -1;
+    slides[current].classList.remove('active');
+    slides[current].classList.add(dir > 0 ? 'exit-left' : '');
+    // Clean exit classes after transition
+    const prev = current;
+    setTimeout(() => slides[prev].classList.remove('exit-left'), 550);
+
+    current = n;
+    slides[current].classList.remove('exit-left');
+    slides[current].classList.add('active');
+
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    counter.textContent = (current + 1) + ' / ' + total;
+
+    // Hide nav hint after first navigation
+    navHint.style.opacity = '0';
+  }
+
+  /* ── Keyboard navigation ───────────────────────────────── */
+  document.addEventListener('keydown', function (e) {
+    if (overviewOpen) {
+      if (e.key === 'Escape') toggleOverview();
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ':
+        e.preventDefault(); goTo(current + 1); break;
+      case 'ArrowLeft': case 'ArrowUp':
+        e.preventDefault(); goTo(current - 1); break;
+      case 'Home':
+        e.preventDefault(); goTo(0); break;
+      case 'End':
+        e.preventDefault(); goTo(total - 1); break;
+      case 'Escape':
+        e.preventDefault(); toggleOverview(); break;
+    }
+  });
+
+  /* ── Touch / swipe support ─────────────────────────────── */
+  let touchX = 0;
+  document.addEventListener('touchstart', function (e) { touchX = e.changedTouches[0].clientX; });
+  document.addEventListener('touchend', function (e) {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) dx < 0 ? goTo(current + 1) : goTo(current - 1);
+  });
+
+  /* ── Click navigation (left/right halves) ──────────────── */
+  document.addEventListener('click', function (e) {
+    if (overviewOpen) return;
+    if (e.clientX > window.innerWidth * 0.65) goTo(current + 1);
+    else if (e.clientX < window.innerWidth * 0.35) goTo(current - 1);
+  });
+
+  /* ── Overview mode ─────────────────────────────────────── */
+  const thumbData = [
+    { title: 'De Opgave van Rijkswaterstaat', body: '3x grotere opgave, 95% AI-pilots mislukt. Ambitie: substantieel meer productie, significante capaciteit vrijspelen.' },
+    { title: 'Het Evolutiepad', body: 'Drie fasen: Fundament (90 dagen), Versnelling (maand 3-9), Transformatie (jaar 1-2).' },
+    { title: 'Fase 1: Fundament', body: 'Portfolio in kaart, slim batenmanagement, quick wins, \u00e9\u00e9n loket \u00e9\u00e9n team.' },
+    { title: 'Fase 2: Versnelling', body: 'AI-intake, monitoring, EU AI Act governance, opschalingsprotocol. Organisatie meenemen.' },
+    { title: 'Fase 3: Transformatie', body: '24/7 AI Agent Lab, zelfverbetering, Europees-soeverein, van builders naar orchestrators.' },
+    { title: 'Waarom Bernd Oostrum', body: 'Odido, a.s.r., internationale ervaring, technisch + bestuurlijk, Stanford AI/ML.' },
+  ];
+
+  function buildOverview() {
+    overview.innerHTML = '';
+    thumbData.forEach(function (d, i) {
+      const el = document.createElement('div');
+      el.className = 'overview-thumb' + (i === current ? ' current' : '');
+      el.innerHTML =
+        '<div class="thumb-header"><h3>' + d.title + '</h3></div>' +
+        '<div class="thumb-body">' + d.body + '</div>' +
+        '<div class="thumb-num">' + (i + 1) + ' / ' + total + '</div>';
+      el.addEventListener('click', function () {
+        goTo(i);
+        toggleOverview();
+      });
+      overview.appendChild(el);
+    });
+  }
+
+  function toggleOverview() {
+    overviewOpen = !overviewOpen;
+    if (overviewOpen) {
+      buildOverview();
+      overview.classList.add('open');
+    } else {
+      overview.classList.remove('open');
+    }
+  }
+
+  /* ── Init ──────────────────────────────────────────────── */
+  goTo(0);
+})();
+</script>
+</body>
+</html>

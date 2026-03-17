@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Prep — 17 maart 2026 — Delft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #1a1714;
+  --bg-card:  #242019;
+  --bg-hover: #2d2822;
+  --cream:    #f0e8d8;
+  --cream-m:  #c4b89a;
+  --cream-d:  #8a7f6a;
+  --amber:    #e8a830;
+  --amber-l:  #f4c560;
+  --green:    #5cb870;
+  --green-bg: rgba(92,184,112,0.08);
+  --red:      #d44;
+  --red-bg:   rgba(221,68,68,0.08);
+  --blue:     #5b8fd4;
+  --blue-bg:  rgba(91,143,212,0.08);
+  --serif:    'DM Serif Display', Georgia, serif;
+  --sans:     'DM Sans', -apple-system, sans-serif;
+  --radius:   12px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--cream);
+  line-height: 1.6;
+  padding-bottom: 120px;
+}
+
+/* ── Grain overlay ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+/* ── Nav dots ─── */
+.nav-dots {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+
+.nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cream-d);
+  opacity: 0.3;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+  padding: 0;
+}
+
+.nav-dot:hover, .nav-dot.active {
+  opacity: 1;
+  background: var(--amber);
+  transform: scale(1.4);
+}
+
+/* ── Section structure ─── */
+.section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-gap { padding-top: 80px; }
+
+/* ── Header ─── */
+.header {
+  padding: 60px 24px 40px;
+  max-width: 720px;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(240,232,216,0.06);
+}
+
+.header-pre {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.header-meta {
+  font-size: 0.9rem;
+  color: var(--cream-d);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-meta span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-meta .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+/* ── Section titles ─── */
+.stitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.stitle-num {
+  font-family: var(--serif);
+  font-size: 2.4rem;
+  color: var(--amber);
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.stitle-text {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--cream);
+}
+
+/* ── Interviewer cards ─── */
+.interviewer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.interviewer {
+  background: var(--bg-card);
+  border: 1px solid rgba(240,232,216,0.06);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: border-color 0.3s;
+}
+
+.interviewer:hover {
+  border-color: rgba(232,168,48,0.2);
+}
+
+.interviewer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.interviewer-name {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+}
+
+.interviewer-role {
+  font-size: 0.78rem;
+  color: var(--cream-d);
+  margin-top: 2px;
+}
+
+.interviewer-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.tag-strategy { background: var(--blue-bg); color: var(--blue); }
+.tag-tech { background: var(--green-bg); color: var(--green); }
+.tag-hr { background: rgba(232,168,48,0.1); color: var(--amber); }
+
+.interviewer-cares {
+  font-size: 0.85rem;
+  color: var(--cream-m);
+  margin-bottom: 12px;
+}
+
+.interviewer-do, .interviewer-dont {
+  font-size: 0.82rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.interviewer-do {
+  background: var(--green-bg);
+  color: var(--green);
+  border-left: 3px solid var(--green);
+}
+
+.interviewer-dont {
+  background: var(--red-bg);
+  color: var(--red);
+  border-left: 3px solid var(--red);
+}
+
+.do-label, .dont-label {
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+/* ── STAR Cards ─── */
+.star-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(240,232,216,0.06);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.star-card:hover {
+  border-color: rgba(232,168,48,0.2);
+}
+
+.star-header {
+  padding: 20px 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.star-header:hover {
+  background: var(--bg-hover);
+}
+
+.star-question {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  line-height: 1.35;
+  flex: 1;
+  padding-right: 16px;
+}
+
+.star-chevron {
+  width: 20px;
+  height: 20px;
+  stroke: var(--cream-d);
+  fill: none;
+  stroke-width: 2;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+
+.star-card.open .star-chevron {
+  transform: rotate(180deg);
+}
+
+.star-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.star-card.open .star-body {
+  max-height: 800px;
+}
+
+.star-content {
+  padding: 0 24px 24px;
+}
+
+.star-step {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.star-letter {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  line-height: 1;
+  padding-top: 2px;
+}
+
+.star-letter-s { color: var(--blue); }
+.star-letter-t { color: var(--amber); }
+.star-letter-a { color: var(--green); }
+.star-letter-r { color: var(--red); }
+
+.star-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cream-d);
+  margin-bottom: 4px;
+}
+
+.star-text {
+  font-size: 0.9rem;
+  color: var(--cream-m);
+  line-height: 1.6;
+}
+
+.star-text em {
+  color: var(--cream);
+  font-style: normal;
+  font-weight: 500;
+}
+
+.star-tip {
+  background: rgba(232,168,48,0.06);
+  border-left: 3px solid var(--amber);
+  padding: 12px 16px;
+  margin-top: 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--amber-l);
+}
+
+.star-tip strong {
+  color: var(--amber);
+}
+
+/* ── Answer cards (for non-STAR questions) ─── */
+.answer-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(240,232,216,0.06);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.answer-card h3 {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: var(--cream);
+}
+
+.answer-card p {
+  font-size: 0.9rem;
+  color: var(--cream-m);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.answer-card p:last-child { margin-bottom: 0; }
+
+.answer-card em {
+  color: var(--cream);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ── Danger zone ─── */
+.danger-list {
+  list-style: none;
+}
+
+.danger-item {
+  padding: 16px 20px;
+  background: var(--red-bg);
+  border-left: 3px solid var(--red);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #e88;
+}
+
+.danger-item strong {
+  color: var(--red);
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+
+/* ── Safe zone ─── */
+.safe-list {
+  list-style: none;
+}
+
+.safe-item {
+  padding: 16px 20px;
+  background: var(--green-bg);
+  border-left: 3px solid var(--green);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #8d8;
+}
+
+.safe-item strong {
+  color: var(--green);
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+
+/* ── Questions to ask ─── */
+.q-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(240,232,216,0.06);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+
+.q-for {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cream-d);
+  margin-bottom: 6px;
+}
+
+.q-text {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--cream);
+  margin-bottom: 6px;
+}
+
+.q-why {
+  font-size: 0.82rem;
+  color: var(--cream-d);
+  font-style: italic;
+}
+
+/* ── Facts grid ─── */
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.fact {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  border: 1px solid rgba(240,232,216,0.04);
+}
+
+.fact-value {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--amber);
+  margin-bottom: 4px;
+}
+
+.fact-label {
+  font-size: 0.78rem;
+  color: var(--cream-d);
+  line-height: 1.4;
+}
+
+/* ── Responsive ─── */
+@media (max-width: 600px) {
+  .facts-grid { grid-template-columns: 1fr; }
+  .nav-dots { display: none; }
+  .header { padding: 40px 20px 30px; }
+  .section { padding: 0 20px; }
+}
+
+/* ── Scroll reveal ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.vis {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Nav dots -->
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header">
+  <div class="header-pre">Interview Prep</div>
+  <h1>Morgen, 09:00, Delft</h1>
+  <div class="header-meta">
+    <span><span class="dot"></span>Programmamanager Data en AI</span>
+    <span>Rijkswaterstaat CIV</span>
+    <span>17 maart 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     1. KEN JE PANEL
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s1">
+  <div class="stitle reveal">
+    <div class="stitle-num">1</div>
+    <div class="stitle-text">Ken je panel</div>
+  </div>
+
+  <div class="interviewer-grid">
+
+    <div class="interviewer reveal">
+      <div class="interviewer-top">
+        <div>
+          <div class="interviewer-name">Roeland Allewijn</div>
+          <div class="interviewer-role">CDO sinds 2019 &middot; direct onder topmanagement</div>
+        </div>
+        <span class="interviewer-tag tag-strategy">Strategie</span>
+      </div>
+      <div class="interviewer-cares">
+        Vier pijlers: technologie, data, processen, <strong>mensen</strong> (die laatste is het belangrijkst voor hem). Heeft datastrategie + implementatieplan voor heel RWS geschreven. Kampioen Digital Twins. Denkt in organisatieverandering, niet in technologie.
+      </div>
+      <div class="interviewer-do">
+        <div class="do-label">Zeg dit</div>
+        "Voortbouwen op wat er al staat" &middot; Vraag naar zijn visie op de volgende fase &middot; Toon begrip voor de pijler 'mensen'
+      </div>
+      <div class="interviewer-dont">
+        <div class="dont-label">Niet dit</div>
+        Niet "data op orde brengen" alsof er niets is &middot; Niet zijn eigen woorden terugpapegaaien &middot; Niet doen alsof je de publieke sector al kent
+      </div>
+    </div>
+
+    <div class="interviewer reveal">
+      <div class="interviewer-top">
+        <div>
+          <div class="interviewer-name">Thymo van den Brug</div>
+          <div class="interviewer-role">Data, Innovatie en AI &middot; ex-ProRail Dataman</div>
+        </div>
+        <span class="interviewer-tag tag-tech">Technisch</span>
+      </div>
+      <div class="interviewer-cares">
+        Afkomstig van ProRail (innovatieteam Asset Management). Focus: brugconditiemonitoring met sensoren en AI. Presenteert op Bruggendag 2026 over "zelfmeldende bruggen." Denkt in concrete data-uitdagingen: missing values, seizoenspatronen, sensordata.
+      </div>
+      <div class="interviewer-do">
+        <div class="do-label">Zeg dit</div>
+        Wees eerlijk over wat je technisch niet weet &middot; Vraag naar de data-uitdagingen bij specifieke projecten &middot; Toon dat je domeinexperts vertrouwt en inzet
+      </div>
+      <div class="interviewer-dont">
+        <div class="dont-label">Niet dit</div>
+        Niet "brugkoeling" zeggen (het is brugconditiemonitoring) &middot; Niet doen alsof je infrastructuurdata begrijpt &middot; Niet oppervlakkig over Digital Twins praten
+      </div>
+    </div>
+
+    <div class="interviewer reveal">
+      <div class="interviewer-top">
+        <div>
+          <div class="interviewer-name">Jeltje Hees</div>
+          <div class="interviewer-role">Extern adviseur &middot; ex-Senior Corporate Recruiter RWS</div>
+        </div>
+        <span class="interviewer-tag tag-hr">HR / Competenties</span>
+      </div>
+      <div class="interviewer-cares">
+        Heeft gestructureerde interviews en objectieve selectiecriteria ingevoerd bij RWS. Nu extern (wijzijninstaat.nl). Ze scoort op competenties: samenwerking, resultaatgerichtheid, aansturen, analyseren. Verwacht STAR-antwoorden. Let op concreetheid.
+      </div>
+      <div class="interviewer-do">
+        <div class="do-label">Zeg dit</div>
+        Concrete voorbeelden met cijfers en resultaten &middot; "De situatie was... mijn taak was... ik heb toen..." &middot; Noem ook mislukkingen en wat je daarvan leerde
+      </div>
+      <div class="interviewer-dont">
+        <div class="dont-label">Niet dit</div>
+        Niet alleen visie en plannen &middot; Niet vaag blijven over teamgroottes of budgetten &middot; Niet alles als succes framen
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     2. STAR-VERHALEN
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s2">
+  <div class="stitle reveal">
+    <div class="stitle-num">2</div>
+    <div class="stitle-text">STAR-verhalen</div>
+  </div>
+
+  <p style="font-size: 0.85rem; color: var(--cream-d); margin-bottom: 24px; line-height: 1.6;" class="reveal">
+    Jeltje scoort op competenties. Elk antwoord moet een concreet verhaal zijn.
+    Klik op een vraag om het STAR-framework te zien. <strong style="color: var(--amber);">Vul de cursieve delen aan met jouw specifieke details.</strong>
+  </p>
+
+  <!-- STAR 1: Programmamanagement -->
+  <div class="star-card reveal" data-star>
+    <div class="star-header">
+      <div class="star-question">"Geef een voorbeeld van een programma dat je van begin tot eind hebt aangestuurd"</div>
+      <svg class="star-chevron" viewBox="0 0 20 20"><polyline points="5,7 10,13 15,7"/></svg>
+    </div>
+    <div class="star-body">
+      <div class="star-content">
+        <div class="star-step">
+          <div class="star-letter star-letter-s">S</div>
+          <div>
+            <div class="star-label">Situatie</div>
+            <div class="star-text">Bij Odido hadden we <em>meerdere AI-initiatieven</em> die los van elkaar draaiden: churn prediction, netwerkoptimalisatie, klantenservice-automatisering. Geen portfolio-overzicht, geen gedeelde prioritering, geen zicht op totale baten.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-t">T</div>
+          <div>
+            <div class="star-label">Taak</div>
+            <div class="star-text">Mijn opdracht: <em>deze losse initiatieven bundelen tot een programma</em>, prioriteren op business impact, en de meest belovende modellen naar productie brengen voor 6,9 miljoen klanten.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-a">A</div>
+          <div>
+            <div class="star-label">Actie</div>
+            <div class="star-text">Ik heb <em>[vul in: wat je concreet deed — bijv. een portfolio-review opgezet, intake-criteria gedefinieerd, wekelijkse stuurgroep ingericht, go/no-go gates per fase]</em>. Cruciaal was het alignment met de business: <em>[vul in: hoe je stakeholders meenam — bijv. maandelijkse demo's, shared KPI's met commercie]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-r">R</div>
+          <div>
+            <div class="star-label">Resultaat</div>
+            <div class="star-text"><em>[Vul in: hoeveel modellen naar productie, welk meetbaar resultaat — bijv. X% churn-reductie, Y minuten bespaard per call, Z projecten gestopt omdat ze niet leverden]</em>. Het belangrijkste resultaat was dat de organisatie leerde <em>welke projecten te stoppen</em> — niet alleen welke door te zetten.</div>
+          </div>
+        </div>
+        <div class="star-tip">
+          <strong>Tip voor Jeltje:</strong> Noem een concreet budget of teamgrootte. Noem ook een project dat je bewust hebt gestopt — dat toont selectiviteit.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAR 2: Verandermanagement -->
+  <div class="star-card reveal" data-star>
+    <div class="star-header">
+      <div class="star-question">"Hoe heb je eerder een organisatieverandering doorgevoerd?"</div>
+      <svg class="star-chevron" viewBox="0 0 20 20"><polyline points="5,7 10,13 15,7"/></svg>
+    </div>
+    <div class="star-body">
+      <div class="star-content">
+        <div class="star-step">
+          <div class="star-letter star-letter-s">S</div>
+          <div>
+            <div class="star-label">Situatie</div>
+            <div class="star-text">Bij Odido moesten AI-modellen niet alleen gebouwd worden — <em>de hele operationele keten moest veranderen</em>. Klantenservice-medewerkers, verkoopteams, en technici moesten leren vertrouwen op AI-aanbevelingen in hun dagelijkse werk.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-t">T</div>
+          <div>
+            <div class="star-label">Taak</div>
+            <div class="star-text">Adoptie realiseren: niet alleen het model deployen, maar zorgen dat mensen het <em>daadwerkelijk gaan gebruiken</em> in hun werkprocessen.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-a">A</div>
+          <div>
+            <div class="star-label">Actie</div>
+            <div class="star-text"><em>[Vul in: jouw specifieke aanpak — bijv. pilotgroep samengesteld, ambassadeurs aangewezen, wekelijkse feedback loops, werkprocessen herontworpen samen met de teams, niet voor de teams]</em>. De sleutel was <em>[vul in: bijv. de early adopters vinden en hen het verhaal laten vertellen aan collega's — peer-to-peer werkt beter dan top-down]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-r">R</div>
+          <div>
+            <div class="star-label">Resultaat</div>
+            <div class="star-text"><em>[Vul in: adoptiepercentage, tijdlijn, specifieke uitkomst]</em>. Het belangrijkste inzicht: technologie veranderen is makkelijk, werkgedrag veranderen is moeilijk. Dat is precies wat RWS nu moet doen met 10.000 medewerkers.</div>
+          </div>
+        </div>
+        <div class="star-tip">
+          <strong>Tip voor Roeland:</strong> Dit is zijn kernthema — de pijler "mensen." Maak de parallel met RWS expliciet maar bescheiden: "Ik herken die uitdaging."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAR 3: Stakeholdermanagement -->
+  <div class="star-card reveal" data-star>
+    <div class="star-header">
+      <div class="star-question">"Beschrijf een situatie waarin je een senior stakeholder moest overtuigen"</div>
+      <svg class="star-chevron" viewBox="0 0 20 20"><polyline points="5,7 10,13 15,7"/></svg>
+    </div>
+    <div class="star-body">
+      <div class="star-content">
+        <div class="star-step">
+          <div class="star-letter star-letter-s">S</div>
+          <div>
+            <div class="star-label">Situatie</div>
+            <div class="star-text"><em>[Vul in: een concrete situatie — bijv. een directeur/VP die twijfelde aan de ROI van een AI-investering, of een compliance officer die een project wilde blokkeren]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-t">T</div>
+          <div>
+            <div class="star-label">Taak</div>
+            <div class="star-text">Draagvlak creëren voor <em>[vul in: het specifieke initiatief]</em> zonder de relatie te beschadigen of de bezwaren weg te wuiven.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-a">A</div>
+          <div>
+            <div class="star-label">Actie</div>
+            <div class="star-text"><em>[Vul in: hoe je het aanpakte — bijv. eerst luisteren naar de bezwaren, dan data verzamelen die de bezwaren adresseerde, een kleinere pilot voorstellen als compromis, de stakeholder meenemen naar een demo]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-r">R</div>
+          <div>
+            <div class="star-label">Resultaat</div>
+            <div class="star-text"><em>[Vul in: wat er uiteindelijk besloten werd en wat het opleverde]</em>. Belangrijk: ook als het resultaat was dat het project werd aangepast of uitgesteld — dat toont nuance.</div>
+          </div>
+        </div>
+        <div class="star-tip">
+          <strong>Tip:</strong> Roeland opereert op directieniveau. Hij wil weten of je op dat niveau kunt meespreken. Noem het senioriteitsniveau van de stakeholder expliciet.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAR 4: Tegenslag / mislukking -->
+  <div class="star-card reveal" data-star>
+    <div class="star-header">
+      <div class="star-question">"Vertel over een project dat niet liep zoals gepland"</div>
+      <svg class="star-chevron" viewBox="0 0 20 20"><polyline points="5,7 10,13 15,7"/></svg>
+    </div>
+    <div class="star-body">
+      <div class="star-content">
+        <div class="star-step">
+          <div class="star-letter star-letter-s">S</div>
+          <div>
+            <div class="star-label">Situatie</div>
+            <div class="star-text"><em>[Vul in: een AI-project of data-initiatief dat mislukte of vastliep — bijv. een model dat in productie slechter presteerde dan in test, een project dat te ambitieus was, een samenwerking die niet werkte]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-t">T</div>
+          <div>
+            <div class="star-label">Taak</div>
+            <div class="star-text">Bepalen: doorgaan, bijsturen, of stoppen. En dat besluit verdedigen naar boven en naar het team.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-a">A</div>
+          <div>
+            <div class="star-label">Actie</div>
+            <div class="star-text"><em>[Vul in: wat je deed — bijv. eerlijke analyse gemaakt, root cause geïdentificeerd, het team bij elkaar geroepen, transparant gecommuniceerd naar stakeholders, het project gestopt/bijgestuurd]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-r">R</div>
+          <div>
+            <div class="star-label">Resultaat</div>
+            <div class="star-text"><em>[Vul in: wat je leerde en hoe je dat toepaste in het volgende project]</em>. Het resultaat is hier niet "het werd alsnog een succes" — het resultaat is wat je leerde.</div>
+          </div>
+        </div>
+        <div class="star-tip">
+          <strong>Tip voor Jeltje:</strong> Dit is dé vraag waar kandidaten falen door een "verkapt succes" te vertellen. Wees echt eerlijk. Dat scoort hoger.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAR 5: Gereguleerde omgeving -->
+  <div class="star-card reveal" data-star>
+    <div class="star-header">
+      <div class="star-question">"Hoe werk je met data in een gereguleerde omgeving?"</div>
+      <svg class="star-chevron" viewBox="0 0 20 20"><polyline points="5,7 10,13 15,7"/></svg>
+    </div>
+    <div class="star-body">
+      <div class="star-content">
+        <div class="star-step">
+          <div class="star-letter star-letter-s">S</div>
+          <div>
+            <div class="star-label">Situatie</div>
+            <div class="star-text">Bij a.s.r. werkten we aan datakoppelingen met de Belastingdienst en het UWV. <em>Zwaar gereguleerd</em>: strenge privacy-eisen, toezicht van DNB en AFM, Wft-vereisten.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-t">T</div>
+          <div>
+            <div class="star-label">Taak</div>
+            <div class="star-text"><em>[Vul in: wat jouw specifieke rol was in die datakoppeling]</em>. Zorgen dat de data-uitwisseling voldeed aan alle regelgeving zonder het project te vertragen.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-a">A</div>
+          <div>
+            <div class="star-label">Actie</div>
+            <div class="star-text"><em>[Vul in: hoe je compliance integreerde in het ontwikkelproces — bijv. privacy-by-design, DPIA's als onderdeel van de planning, niet als afterthought. Samenwerking met juridische afdeling]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-r">R</div>
+          <div>
+            <div class="star-label">Resultaat</div>
+            <div class="star-text"><em>[Vul in: concrete uitkomst — bijv. koppeling live, doorlooptijd, compliance-goedkeuring in eerste poging]</em>. Die discipline — compliance niet als obstakel maar als ontwerpeis — is direct toepasbaar op de EU AI Act.</div>
+          </div>
+        </div>
+        <div class="star-tip">
+          <strong>Tip:</strong> Dit verhaal verbindt a.s.r. met de AI Act-uitdaging van RWS. Maar claim niet dat je de publieke sector kent — zeg: "Die gereguleerde discipline herken ik."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAR 6: Internationale teams -->
+  <div class="star-card reveal" data-star>
+    <div class="star-header">
+      <div class="star-question">"Hoe stuur je een team aan op afstand / in een complexe setting?"</div>
+      <svg class="star-chevron" viewBox="0 0 20 20"><polyline points="5,7 10,13 15,7"/></svg>
+    </div>
+    <div class="star-body">
+      <div class="star-content">
+        <div class="star-step">
+          <div class="star-letter star-letter-s">S</div>
+          <div>
+            <div class="star-label">Situatie</div>
+            <div class="star-text">Ik managede AI-teams in San Francisco en Bangalore. <em>[Vul in: hoeveel mensen, welk type werk, welke organisatie]</em>. Drie tijdzones, twee culturen, verschillende werkstijlen.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-t">T</div>
+          <div>
+            <div class="star-label">Taak</div>
+            <div class="star-text">Een samenhangend team bouwen dat autonoom kon werken ondanks de afstand en culturele verschillen.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-a">A</div>
+          <div>
+            <div class="star-label">Actie</div>
+            <div class="star-text"><em>[Vul in: wat je concreet deed — bijv. duidelijke ownership per project, asynchrone communicatie als default, kwartaalbezoeken ter plaatse, cultuurverschillen expliciet besproken]</em>.</div>
+          </div>
+        </div>
+        <div class="star-step">
+          <div class="star-letter star-letter-r">R</div>
+          <div>
+            <div class="star-label">Resultaat</div>
+            <div class="star-text"><em>[Vul in: wat het team opleverde, hoe de samenwerking verbeterde]</em>. De les: best practices vertalen naar lokale context, niet blind kopiëren.</div>
+          </div>
+        </div>
+        <div class="star-tip">
+          <strong>Tip voor Jeltje:</strong> Noem het exacte aantal mensen dat je aanstuurde. "Een team" is vaag. "Een team van 8 engineers in Bangalore en 4 in SF" is concreet.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     3. KERNVRAGEN (niet-STAR)
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s3">
+  <div class="stitle reveal">
+    <div class="stitle-num">3</div>
+    <div class="stitle-text">Kernvragen</div>
+  </div>
+
+  <div class="answer-card reveal">
+    <h3>"Waarom de overheid? Na telecom, verzekeringen en Silicon Valley?"</h3>
+    <p>
+      <em>Dit is de belangrijkste vraag. Wees persoonlijk, niet strategisch.</em>
+    </p>
+    <p>
+      Een mogelijk antwoord: "Bij Odido bouwde ik AI voor 6,9 miljoen klanten — maar uiteindelijk was het doel: meer abonnementen verkopen. Ik wil dat de technologie die ik help opschalen bijdraagt aan iets groters. Rijkswaterstaat beheert de infrastructuur waar 17 miljoen Nederlanders dagelijks op vertrouwen. Als Data en AI daar kan helpen om bruggen veiliger te maken, files te verminderen, en overstromingen te voorkomen — dan heeft mijn werk direct maatschappelijke waarde. Die stap voelt voor mij niet als een afwijking maar als een logische volgende stap."
+    </p>
+    <p>
+      <em>Pas dit aan naar jouw echte motivatie. Het moet authentiek klinken. De kern: je wilt impact die verder gaat dan commercieel belang.</em>
+    </p>
+  </div>
+
+  <div class="answer-card reveal">
+    <h3>"Wat is je grootste zwakte?"</h3>
+    <p>
+      <em>Niet: "ik ben te perfectionistisch." Wees eerlijk op een manier die relevant is voor de rol.</em>
+    </p>
+    <p>
+      Suggestie: "Ik kom uit omgevingen waar je snel kunt schakelen — telecom, startups. Ik merk dat ik soms te snel wil gaan. Bij a.s.r. heb ik geleerd dat in een gereguleerde omgeving grondigheid belangrijker is dan snelheid. Die les neem ik mee, maar het blijft iets waar ik bewust op stuur."
+    </p>
+    <p>
+      <em>Dit is eerlijk, relevant, en toont zelfreflectie. Het adresseert ook het risico dat het panel ziet: iemand uit de commerciële sector die gefrustreerd raakt door overheidstempo.</em>
+    </p>
+  </div>
+
+  <div class="answer-card reveal">
+    <h3>"Hoe ga je om met de 95% van AI-pilots die niet naar productie komt?"</h3>
+    <p>
+      "Dat cijfer is een landelijk gemiddelde. De oorzaak is bijna nooit technisch — het is dat de organisatie niet klaar is voor het model. Mijn aanpak: begin klein, meet snel, en investeer minstens zoveel in adoptie als in het model zelf. Bij Odido <em>[vul in: concreet voorbeeld van een pilot die je naar productie bracht en hoe]</em>."
+    </p>
+  </div>
+
+  <div class="answer-card reveal">
+    <h3>"Hoe verhoud je je tot de CDO-lijn versus het afdelingshoofd CIV?"</h3>
+    <p>
+      <em>Let op: dit is een politiek gevoelige vraag. Roeland is CDO (organisatiebreed), de functie zit bij CIV (uitvoerend).</em>
+    </p>
+    <p>
+      "Ik zie de programmamanager als de schakel tussen de strategische richting van de CDO en de uitvoeringskracht van CIV. Dat betekent: loyaal aan de strategie, maar met begrip voor de operationele realiteit. Ik zoek dat gesprek actief op — niet wachten tot er spanning ontstaat, maar proactief afstemmen."
+    </p>
+  </div>
+
+  <div class="answer-card reveal">
+    <h3>"Wat weet je van de EU AI Act en wat betekent het voor RWS?"</h3>
+    <p>
+      "Augustus 2026 worden de high-risk eisen afdwingbaar. AI-systemen in verkeersmanagement en watervoorziening vallen onder Annex III — dat raakt meerdere RWS-projecten. Concreet: EU-database registratie, technische documentatie, menselijk toezicht. Voor sommige systemen is ook een Fundamental Rights Impact Assessment nodig, maar niet voor alle — de exacte classificatie moet per project beoordeeld worden."
+    </p>
+    <p>
+      <em>Let op: niet alle high-risk systemen vereisen een FRIA. Veiligheidscomponenten in kritieke infrastructuur zijn deels uitgezonderd onder Artikel 27. Ken dat onderscheid — Thymo of Roeland kan doorvragen.</em>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     4. GEVARENZONE
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s4">
+  <div class="stitle reveal">
+    <div class="stitle-num">4</div>
+    <div class="stitle-text">Niet zeggen</div>
+  </div>
+
+  <ul class="danger-list">
+    <li class="danger-item reveal">
+      <strong>"De publieke sector ken ik"</strong>
+      a.s.r. is een private verzekeraar. Werk met Belastingdienst was als externe partij. Roeland, die al decennia bij de overheid werkt, prikt hier doorheen. Zeg in plaats daarvan: "Gereguleerde omgevingen ken ik."
+    </li>
+    <li class="danger-item reveal">
+      <strong>"Data op orde brengen"</strong>
+      Klinkt alsof er niets is. Roeland werkt hier al 6 jaar aan. Zeg: "Voortbouwen op de datafundamenten."
+    </li>
+    <li class="danger-item reveal">
+      <strong>"35% productiviteitsverhoging" of "750 medewerkers vrijspelen"</strong>
+      Dit cijfer is niet onderbouwd door een publieke bron. Als Roeland vraagt "waar komt dat vandaan?" heb je geen antwoord. Spreek over "significante productiviteitswinst" zonder hard getal.
+    </li>
+    <li class="danger-item reveal">
+      <strong>"Brugkoeling"</strong>
+      Dit is de verkeerde term. Thymo werkt aan brugconditiemonitoring — sensoren die trillingen, deformaties en corrosie meten. Niet koeling.
+    </li>
+    <li class="danger-item reveal">
+      <strong>Projectnamen opsommen zonder er iets origineels over te zeggen</strong>
+      "DGAM, Digital Twins, AI Impulse, verkeersherkenning..." — als je dit opsomt klinkt het als een Wikipedia-pagina. Noem maximaal 2-3 projecten en zeg er iets inhoudelijks over.
+    </li>
+    <li class="danger-item reveal">
+      <strong>Roeland's eigen woorden terug citeren</strong>
+      Hij weet wat hij gezegd heeft. Laat zien dat je het begrepen hebt, niet dat je het gelezen hebt.
+    </li>
+    <li class="danger-item reveal">
+      <strong>"24/7 AI agents" of "zelfverbeterend systeem" te vroeg noemen</strong>
+      Dit is Fase 3-denken. Als je hiermee begint, verlies je het panel. Bouw op: eerst het fundament, dan de ambitie. Alleen noemen als er expliciet naar gevraagd wordt.
+    </li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     5. VEILIGE GROND
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s5">
+  <div class="stitle reveal">
+    <div class="stitle-num">5</div>
+    <div class="stitle-text">Veilige grond</div>
+  </div>
+
+  <ul class="safe-list">
+    <li class="safe-item reveal">
+      <strong>"Ik begin met luisteren"</strong>
+      Dit is het sterkste signaal dat je kunt geven. Het panel wil horen dat je niet binnenkomt met een kant-en-klaar plan, maar eerst de organisatie leert kennen. Herhaal dit in verschillende varianten.
+    </li>
+    <li class="safe-item reveal">
+      <strong>De parallel Odido → RWS (bescheiden)</strong>
+      "Bij Odido stond ik voor een vergelijkbare uitdaging: AI van experiment naar operationeel gebruik brengen in een complexe organisatie. Ik herken wat ik hier zie." Niet: "Precies dezelfde slag."
+    </li>
+    <li class="safe-item reveal">
+      <strong>"Wat ik nog niet weet"</strong>
+      Benoem actief dat je geen waterbouw-achtergrond hebt en afhankelijk bent van domeinexperts. Dit wekt vertrouwen, geen twijfel.
+    </li>
+    <li class="safe-item reveal">
+      <strong>Vragen stellen over hun ervaringen</strong>
+      "Wat was de grootste les uit de DGAM-pilot?" — dit toont oprechte interesse en geeft het panel ruimte om te vertellen.
+    </li>
+    <li class="safe-item reveal">
+      <strong>Compliance als ontwerpeis, niet als obstakel</strong>
+      "Bij a.s.r. leerde ik dat compliance geen rem is maar een ontwerpeis. Die mindset is direct toepasbaar op de AI Act." Dit is genuanceerd en toont ervaring.
+    </li>
+    <li class="safe-item reveal">
+      <strong>De pijler "mensen" benoemen</strong>
+      Roeland's belangrijkste pijler. "De technologie is er — de uitdaging zit bij mensen en processen." Dit sluit aan bij zijn visie zonder het letterlijk te citeren.
+    </li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     6. VRAGEN OM TE STELLEN
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s6">
+  <div class="stitle reveal">
+    <div class="stitle-num">6</div>
+    <div class="stitle-text">Jouw vragen aan hen</div>
+  </div>
+
+  <p style="font-size: 0.85rem; color: var(--cream-d); margin-bottom: 24px;" class="reveal">
+    Kies er 2-3 uit. Stel ze op het juiste moment, niet allemaal aan het eind.
+  </p>
+
+  <div class="q-card reveal">
+    <div class="q-for">Voor Roeland</div>
+    <div class="q-text">"U heeft de datastrategie voor RWS ontwikkeld. Wat ziet u als de grootste onopgeloste uitdaging in de volgende fase?"</div>
+    <div class="q-why">Toont dat je weet dat er een strategie is. Geeft hem de ruimte om te vertellen wat hij belangrijk vindt. Maakt hem tot mede-eigenaar van de richting.</div>
+  </div>
+
+  <div class="q-card reveal">
+    <div class="q-for">Voor Thymo</div>
+    <div class="q-text">"Wat zijn de grootste datakwaliteits-uitdagingen die jullie tegenkomen bij de sensordata van bruggen en sluizen?"</div>
+    <div class="q-why">Toont bescheidenheid (je vraagt om te leren, niet om te imponeren). Geeft Thymo de kans om zijn expertise te delen. Laat zien dat je begrijpt dat data-uitdagingen domeinspecifiek zijn.</div>
+  </div>
+
+  <div class="q-card reveal">
+    <div class="q-for">Voor het panel</div>
+    <div class="q-text">"Waar is de afgelopen twee jaar een AI-project gestopt of bijgestuurd, en wat was de les?"</div>
+    <div class="q-why">Een krachtige vraag: het toont dat je begrijpt dat stoppen ook een besluit is. Het geeft inzicht in de organisatiecultuur. En het laat zien dat je niet alleen in successen denkt.</div>
+  </div>
+
+  <div class="q-card reveal">
+    <div class="q-for">Voor Roeland</div>
+    <div class="q-text">"Hoe ziet u de verhouding tussen de CDO-lijn en de uitvoering binnen CIV? Waar zit de spanning?"</div>
+    <div class="q-why">Toont organisatorisch bewustzijn. Laat zien dat je snapt dat er een dubbelrapportage is en dat je die actief wilt navigeren.</div>
+  </div>
+
+  <div class="q-card reveal">
+    <div class="q-for">Voor Thymo</div>
+    <div class="q-text">"Hoe werkt het Data en AI Lab samen met de regionale diensten? Hoe ontstaat een project?"</div>
+    <div class="q-why">Je wilt begrijpen hoe vraag en aanbod samenkomen. Dit is precies de intake-flow die je wilt verbeteren.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     7. FEITEN OP ZAK
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s7">
+  <div class="stitle reveal">
+    <div class="stitle-num">7</div>
+    <div class="stitle-text">Feiten op zak</div>
+  </div>
+
+  <div class="facts-grid">
+    <div class="fact reveal">
+      <div class="fact-value">10.000+</div>
+      <div class="fact-label">Medewerkers RWS</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">2 aug 2026</div>
+      <div class="fact-label">EU AI Act high-risk deadline</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">Annex III</div>
+      <div class="fact-label">Verkeer + water = high-risk</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">DGAM</div>
+      <div class="fact-label">Datagedreven Assetmanagement (60+ assets)</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">iML-WKW</div>
+      <div class="fact-label">&euro;14,5M lab — Deltares/KNMI/RWS (2025-2029)</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">GPT-NL</div>
+      <div class="fact-label">Soeverein taalmodel — TNO/NFI/SURF — herfst 2026</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">CDO sinds 2019</div>
+      <div class="fact-label">Roeland — direct onder topmanagement</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">Ex-ProRail</div>
+      <div class="fact-label">Thymo — innovatieteam Asset Management</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">CIV</div>
+      <div class="fact-label">Centrale Informatievoorziening — sinds 2013</div>
+    </div>
+    <div class="fact reveal">
+      <div class="fact-value">4 pijlers</div>
+      <div class="fact-label">Roeland: technologie, data, processen, mensen</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     8. MATERIAALSTRATEGIE
+     ═══════════════════════════════════════════ -->
+<div class="section section-gap" id="s8">
+  <div class="stitle reveal">
+    <div class="stitle-num">8</div>
+    <div class="stitle-text">Materiaalstrategie</div>
+  </div>
+
+  <div class="answer-card reveal" style="border-left: 3px solid var(--amber);">
+    <h3>Hoe de deliverables inzetten</h3>
+    <p><em>Regel 1: toon niets actief.</em> Begin het gesprek normaal. Beantwoord vragen. Luister.</p>
+    <p><strong style="color: var(--green);">One-pager (print):</strong> Neem 2-3 geprinte exemplaren mee. Leg ze aan het eind op tafel: "Ik heb mijn visie ook samengevat — die laat ik graag achter." Professioneel, passend, niet opdringerig.</p>
+    <p><strong style="color: var(--amber);">Slides (laptop):</strong> Alleen als er een presentatiemoment is in het format, of als iemand expliciet vraagt naar je visie. Dan: "Ik heb daar een korte presentatie voor, mag ik die laten zien?" Maximaal 5 minuten.</p>
+    <p><strong style="color: var(--red);">Dashboard:</strong> Niet laten zien. Tenzij iemand heel expliciet vraagt: "Hoe zou je het portfoliomanagement concreet inrichten?" Dan kun je het kort tonen als "concept-schets." Maar noem het een schets, niet een systeem.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CLOSING
+     ═══════════════════════════════════════════ -->
+<div class="section" style="padding-top: 80px; padding-bottom: 40px; text-align: center;">
+  <p style="font-family: var(--serif); font-size: 1.4rem; color: var(--cream-d); max-width: 500px; margin: 0 auto 16px; line-height: 1.5;" class="reveal">
+    Je bent voorbereid.<br>Nu gewoon jezelf zijn.
+  </p>
+  <p style="font-size: 0.82rem; color: var(--cream-d); opacity: 0.4;" class="reveal">
+    Succes morgen, Bernd.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  /* ── Scroll reveal ─── */
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) e.target.classList.add('vis');
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+
+  /* ── STAR accordion ─── */
+  document.querySelectorAll('[data-star]').forEach(function(card) {
+    card.querySelector('.star-header').addEventListener('click', function() {
+      card.classList.toggle('open');
+    });
+  });
+
+  /* ── Nav dots ─── */
+  var sections = document.querySelectorAll('[id^="s"]');
+  var dotsContainer = document.getElementById('navDots');
+  var labels = ['Panel', 'STAR', 'Vragen', 'Niet zeggen', 'Veilig', 'Jouw vragen', 'Feiten', 'Materiaal'];
+
+  sections.forEach(function(sec, i) {
+    var btn = document.createElement('button');
+    btn.className = 'nav-dot';
+    btn.title = labels[i] || '';
+    btn.addEventListener('click', function() {
+      sec.scrollIntoView({ behavior: 'smooth' });
+    });
+    dotsContainer.appendChild(btn);
+  });
+
+  var dots = dotsContainer.querySelectorAll('.nav-dot');
+  var dotObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var idx = Array.prototype.indexOf.call(sections, e.target);
+        dots.forEach(function(d, j) {
+          d.classList.toggle('active', j === idx);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(function(sec) { dotObs.observe(sec); });
+})();
+</script>
+</body>
+</html>

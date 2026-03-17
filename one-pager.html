@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bernd Oostrum — Programmamanager Data en AI — Rijkswaterstaat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN: Dutch Editorial — De Stijl meets modern editorial
+   Confident, authoritative, warm. Not cold/corporate.
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --navy:      #001a44;
+  --navy-mid:  #002a6b;
+  --blue:      #003082;
+  --blue-l:    #1a5cb5;
+  --amber:     #FFB612;
+  --amber-l:   #ffd166;
+  --amber-d:   #d49800;
+  --paper:     #faf8f5;
+  --paper-d:   #f0ede8;
+  --ink:       #1a1a2e;
+  --ink-l:     #3d3d56;
+  --ink-ll:    #6b6b80;
+  --white:     #ffffff;
+  --serif:     'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --sans:      'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  overflow-x: hidden;
+}
+
+/* ── Noise texture overlay ─────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+/* ── Scroll progress bar ─────────────────────────────── */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--amber);
+  z-index: 10000;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* ── Scroll reveal ─────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(.22,.61,.36,1),
+              transform 0.8s cubic-bezier(.22,.61,.36,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ═══════════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--navy);
+  color: var(--white);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -20%;
+  width: 80vw;
+  height: 80vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,182,18,0.04) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--amber);
+}
+
+.hero-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-label {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-label::before {
+  content: '';
+  width: 40px;
+  height: 2px;
+  background: var(--amber);
+  flex-shrink: 0;
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 6vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--amber);
+}
+
+.hero-sub {
+  font-family: var(--sans);
+  font-size: 1.15rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.7);
+  max-width: 600px;
+  margin-bottom: 48px;
+}
+
+.hero-org {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.5px;
+}
+
+.hero-org .org-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--amber);
+  border-radius: 50%;
+}
+
+
+/* Scroll indicator */
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: float 2.5s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+.scroll-hint svg {
+  width: 20px;
+  height: 20px;
+  stroke: rgba(255,255,255,0.3);
+  fill: none;
+  stroke-width: 2;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATS BAR
+   ═══════════════════════════════════════════════════════ */
+.stats-bar {
+  background: var(--white);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  position: relative;
+  z-index: 2;
+}
+
+.stats-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 56px 48px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+.stat {
+  text-align: center;
+  padding: 8px;
+}
+
+.stat-number {
+  font-family: var(--serif);
+  font-size: 3rem;
+  color: var(--blue);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-number .unit {
+  font-size: 1.4rem;
+  color: var(--amber);
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink-ll);
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION - GENERAL
+   ═══════════════════════════════════════════════════════ */
+section {
+  padding: 100px 48px;
+}
+
+.section-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--amber-d);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-label::before {
+  content: '';
+  width: 28px;
+  height: 2px;
+  background: var(--amber);
+}
+
+.section-heading {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--navy);
+  line-height: 1.15;
+  margin-bottom: 24px;
+  letter-spacing: -0.5px;
+}
+
+.section-intro {
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: var(--ink-l);
+  line-height: 1.8;
+  max-width: 680px;
+  margin-bottom: 56px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DE OPGAVE (context section)
+   ═══════════════════════════════════════════════════════ */
+.opgave {
+  background: var(--paper);
+}
+
+.opgave-quote {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-style: italic;
+  color: var(--navy);
+  line-height: 1.55;
+  padding: 32px 0 32px 32px;
+  margin-bottom: 0;
+  border-left: 4px solid var(--amber);
+  max-width: 700px;
+}
+
+.opgave-quote cite {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 500;
+  color: var(--ink-ll);
+  margin-top: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PHASES — THE EVOLUTIEPAD
+   ═══════════════════════════════════════════════════════ */
+.phases {
+  background: var(--white);
+}
+
+.phase-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.phase-item {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 48px;
+  padding: 56px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  align-items: start;
+  position: relative;
+}
+
+/* Timeline connector between phases */
+.phase-item::after {
+  content: '';
+  position: absolute;
+  left: 76px;
+  bottom: -2px;
+  width: 2px;
+  height: 56px;
+  background: linear-gradient(to bottom, var(--amber), transparent);
+  opacity: 0.3;
+}
+.phase-item:last-child::after {
+  display: none;
+}
+
+.phase-item:last-child {
+  border-bottom: none;
+}
+
+/* Phase number block */
+.phase-meta {
+  position: sticky;
+  top: 40px;
+}
+
+.phase-num {
+  font-family: var(--serif);
+  font-size: 5rem;
+  color: var(--amber);
+  line-height: 1;
+  margin-bottom: 8px;
+  opacity: 0.9;
+  transition: color 0.3s ease;
+}
+
+.phase-name {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+
+.phase-period {
+  font-size: 0.82rem;
+  color: var(--ink-ll);
+  font-weight: 400;
+}
+
+/* Phase hover */
+.phase-item {
+  transition: background 0.3s ease;
+  border-radius: 12px;
+  margin: 0 -24px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+.phase-item:hover {
+  background: rgba(0,48,130,0.02);
+}
+.phase-item:hover .phase-num {
+  color: var(--blue);
+}
+
+/* Phase content */
+.phase-content h3 {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--navy);
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+
+.phase-points {
+  list-style: none;
+  margin-bottom: 24px;
+}
+
+.phase-points li {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--ink-l);
+  padding: 10px 0 10px 28px;
+  position: relative;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.phase-points li:last-child {
+  border-bottom: none;
+}
+
+.phase-points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 12px;
+  height: 2px;
+  background: var(--amber);
+}
+
+.phase-points li strong {
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.phase-insight {
+  background: var(--paper);
+  border-radius: 12px;
+  padding: 20px 24px;
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--blue);
+  line-height: 1.6;
+  border-left: 3px solid var(--amber);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TRACK RECORD
+   ═══════════════════════════════════════════════════════ */
+.track {
+  background: var(--navy);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.track::before {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,182,18,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.track .section-heading {
+  color: var(--white);
+}
+
+.track .section-intro {
+  color: rgba(255,255,255,0.55);
+}
+
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.track-card {
+  padding: 32px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.track-card:hover {
+  border-color: rgba(255,182,18,0.3);
+  background: rgba(255,255,255,0.06);
+}
+
+.track-card-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 12px;
+}
+
+.track-card h3 {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.track-card p {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.65;
+}
+
+/* ═══════════════════════════════════════════════════════
+   EERLIJK
+   ═══════════════════════════════════════════════════════ */
+.eerlijk {
+  background: var(--paper-d);
+  padding: 100px 48px;
+  border-top: 1px solid rgba(0,0,0,0.04);
+}
+
+.eerlijk-content {
+  max-width: 680px;
+}
+
+.eerlijk-content p {
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: var(--ink-l);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.eerlijk-content p:last-child {
+  margin-bottom: 0;
+}
+
+.eerlijk-maar {
+  color: var(--navy) !important;
+  font-weight: 400 !important;
+  padding-top: 8px;
+  border-top: 2px solid var(--amber);
+  margin-top: 24px !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CLOSING
+   ═══════════════════════════════════════════════════════ */
+.closing {
+  background: var(--paper);
+  text-align: center;
+  padding: 120px 48px;
+}
+
+.closing-quote {
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  color: var(--navy);
+  line-height: 1.45;
+  max-width: 750px;
+  margin: 0 auto 40px;
+  letter-spacing: -0.3px;
+}
+
+.closing-quote em {
+  font-style: italic;
+  color: var(--blue);
+  background: linear-gradient(to bottom, transparent 65%, rgba(255,182,18,0.25) 65%);
+  padding: 0 2px;
+}
+
+.closing-cta {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ink-l);
+  margin-bottom: 48px;
+  letter-spacing: 0.2px;
+}
+
+.closing-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-ll);
+  letter-spacing: 1px;
+}
+
+.closing-name::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--amber);
+  margin: 0 auto 20px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT STYLES
+   ═══════════════════════════════════════════════════════ */
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+@media print {
+  html { font-size: 10pt; scroll-behavior: auto; }
+  body::before { display: none; }
+
+  .hero {
+    min-height: auto;
+    padding: 24pt 0;
+    page-break-after: always;
+  }
+  .hero-inner { padding: 0; }
+  .scroll-hint { display: none; }
+
+  section { padding: 20pt 0; }
+  .stats-inner { padding: 16pt 0; }
+
+  .phase-item {
+    padding: 16pt 0;
+    page-break-inside: avoid;
+  }
+
+  .track { color: var(--ink); background: var(--paper); }
+  .track .section-heading { color: var(--navy); }
+  .track .section-intro { color: var(--ink-l); }
+  .track-card { background: var(--white); border-color: var(--paper-d); }
+  .track-card h3 { color: var(--navy); }
+  .track-card p { color: var(--ink-l); }
+  .track-card-label { color: var(--amber-d); }
+  .track::before { display: none; }
+
+  .progress-bar { display: none; }
+  .eerlijk { padding: 20pt 0; background: transparent; border-top: 1px solid #ccc; }
+  .eerlijk-content p { color: var(--ink-l); }
+  .eerlijk-maar { color: var(--navy) !important; }
+
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  section { padding: 64px 24px; }
+  .hero-inner { padding: 60px 24px; }
+  .stats-inner {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 40px 24px;
+  }
+  .phase-item {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .phase-meta {
+    position: static;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .phase-num { font-size: 3rem; }
+  .track-grid { grid-template-columns: 1fr; }
+  .phase-item::after { display: none; }
+  .eerlijk { padding: 64px 24px; }
+
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-label reveal">Visie & Aanpak</div>
+    <h1 class="reveal reveal-delay-1">
+      Programmamanager<br>
+      <em>Data en AI</em>
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2">
+      Voortbouwen op de datafundamenten, AI-projecten van experiment naar productie tillen,
+      en de organisatie meenemen in die verandering.
+    </p>
+    <div class="hero-org reveal reveal-delay-3">
+      <span class="org-dot"></span>
+      Bernd Oostrum &nbsp;&middot;&nbsp; Rijkswaterstaat CIV
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <svg viewBox="0 0 20 20"><polyline points="4,7 10,13 16,7"/></svg>
+  </div>
+</header>
+
+<main>
+<!-- ════════════════════════════════════════════════════════
+     STATS BAR
+     ════════════════════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat reveal">
+      <div class="stat-number"><span class="counter" data-target="10">0</span><span class="unit">k</span></div>
+      <div class="stat-label">medewerkers in de verandering</div>
+    </div>
+    <div class="stat reveal reveal-delay-1">
+      <div class="stat-number"><span class="counter" data-target="95">0</span><span class="unit">%</span></div>
+      <div class="stat-label">van AI-pilots haalt productie niet</div>
+    </div>
+    <div class="stat reveal reveal-delay-2">
+      <div class="stat-number"><span class="counter" data-target="40">0</span><span class="unit">+</span></div>
+      <div class="stat-label">specialisten in Data, Innovatie en AI</div>
+    </div>
+    <div class="stat reveal reveal-delay-3">
+      <div class="stat-number"><span class="counter" data-target="5">0</span><span class="unit"> mnd</span></div>
+      <div class="stat-label">tot EU AI Act high-risk deadline</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     DE OPGAVE
+     ════════════════════════════════════════════════════════ -->
+<section class="opgave">
+  <div class="section-inner">
+    <div class="section-label reveal">De context</div>
+    <h2 class="section-heading reveal reveal-delay-1">
+      Drie opgaven, &eacute;&eacute;n kernvraag
+    </h2>
+    <p class="section-intro reveal reveal-delay-2" style="margin-bottom: 32px;">
+      Vergrijzende infrastructuur, een onderhoudsopgave die de huidige capaciteit ruim overstijgt, en een EU AI Act die over vijf maanden high-risk eisen stelt aan verkeers- en watermanagement AI.
+      Het Data en AI Lab is opgezet om data- en AI-projecten samen te brengen en te versnellen. De technische basis groeit snel.
+    </p>
+    <div class="opgave-quote reveal reveal-delay-3">
+      Maar de kernvraag is niet technisch. Het is: hoe zorg je dat 10.000 medewerkers het &eacute;cht gaan gebruiken?
+      Hoe neem je de top &eacute;n de werkvloer mee? En hoe voorkom je dat je in pilots blijft hangen terwijl de opgave niet wacht?
+    </div>
+    <p class="section-intro reveal reveal-delay-4" style="margin-top: 32px;">
+      Dit is precies waar mijn ervaring zit. Bij Odido stond ik voor dezelfde uitdaging: AI van experiment naar operationele waarde brengen, in een complexe organisatie met miljoenen eindgebruikers. En bij a.s.r. leerde ik hoe je dat doet binnen de kaders van gereguleerde data-uitwisseling.
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     HET EVOLUTIEPAD
+     ════════════════════════════════════════════════════════ -->
+<section class="phases">
+  <div class="section-inner">
+    <div class="section-label reveal">Mijn aanpak</div>
+    <h2 class="section-heading reveal reveal-delay-1">Het Evolutiepad</h2>
+    <p class="section-intro reveal reveal-delay-2">
+      Drie fasen die voortbouwen op elkaar &mdash; geen big bang, maar gecontroleerde evolutie.
+      Elke fase maakt de volgende mogelijk.
+    </p>
+
+    <div class="phase-grid">
+
+      <!-- FASE 1 -->
+      <div class="phase-item reveal">
+        <div class="phase-meta">
+          <div class="phase-num">1</div>
+          <div class="phase-name">Fundament</div>
+          <div class="phase-period">Dag 1 &ndash; 90</div>
+        </div>
+        <div class="phase-content">
+          <h3>Luisteren, begrijpen, eerste resultaten boeken</h3>
+          <ul class="phase-points">
+            <li><strong>Voortbouwen op het datafundament</strong> &mdash; datakwaliteit, toegankelijkheid en governance zijn voorwaarden voor alles wat volgt. Ik breng in kaart waar de grootste gaten zitten en welke standaarden nog ontbreken</li>
+            <li><strong>Het projectenlandschap doorgronden</strong> &mdash; DGAM sluizenmonitoring, Digital Twins, AI Impulse waterbeheer, beeldherkenning verkeer, brugconditiemonitoring &mdash; per project: waar staat het, wat levert het op, wat blokkeert?</li>
+            <li><strong>Slim batenmanagement</strong> &mdash; niet anderhalf jaar aan een business case schrijven. Snel starten, goed monitoren, en tijdig bijstellen als resultaten tegenvallen</li>
+            <li><strong>Goede voorbeelden als aanjager</strong> &mdash; de weginspecteur-optimalisatie bespaart al echt tijd, de brugconditiemonitoring met sensordata werkt. Die successen zichtbaar maken zodat de rest van de organisatie ziet wat Data en AI concreet oplevert</li>
+          </ul>
+          <div class="phase-insight">
+            Ik begin met luisteren: bij de lab-teams, bij de interne klanten, bij de algemeen directeuren. Waar zitten de weerstanden? Wie zijn de early adopters? Wat mist de gebruiker?
+          </div>
+        </div>
+      </div>
+
+      <!-- FASE 2 -->
+      <div class="phase-item reveal">
+        <div class="phase-meta">
+          <div class="phase-num">2</div>
+          <div class="phase-name">Versnelling</div>
+          <div class="phase-period">Maand 3 &ndash; 9</div>
+        </div>
+        <div class="phase-content">
+          <h3>Van experiment naar operationeel gebruik</h3>
+          <ul class="phase-points">
+            <li><strong>AI-geassisteerde intake</strong> &mdash; nieuwe projectvoorstellen geautomatiseerd toetsen op strategische fit, verwachte baten en benodigde resources</li>
+            <li><strong>Voortgangs- en batenmonitoring</strong> &mdash; real-time dashboards in plaats van kwartaalrapportages. Afwijkingen signaleren v&oacute;&oacute;r ze problemen worden</li>
+            <li><strong>EU AI Act governance</strong> &mdash; high-risk classificatie beoordelen per project, EU-database registratie voorbereiden, en waar nodig impact assessments uitvoeren v&oacute;&oacute;r augustus 2026</li>
+            <li><strong>Opschalingsprotocol</strong> &mdash; gestructureerd pad van experiment naar pilot naar opschaling naar productie. Niet in pilots blijven hangen</li>
+          </ul>
+          <div class="phase-insight">
+            De 10.000 medewerkers meenemen: adoptietrajecten, training, werkprocessen herinrichten. De technologie is er &mdash; de organisatie moet mee.
+          </div>
+        </div>
+      </div>
+
+      <!-- FASE 3 -->
+      <div class="phase-item reveal">
+        <div class="phase-meta">
+          <div class="phase-num">3</div>
+          <div class="phase-name">Transformatie</div>
+          <div class="phase-period">Jaar 1 &ndash; 2</div>
+        </div>
+        <div class="phase-content">
+          <h3>Het lab dat zichzelf steeds beter maakt</h3>
+          <ul class="phase-points">
+            <li><strong>Geautomatiseerde innovatiepipeline</strong> &mdash; intake-analyse, voortgangsrapportages en afwijkingssignalering grotendeels geautomatiseerd. De programmamanager stuurt op uitzonderingen, niet op routine</li>
+            <li><strong>Leren van resultaten</strong> &mdash; elk afgerond project voedt het systeem. Welke baten-inschattingen klopten? Welke risico's materialiseerden? Dat maakt toekomstige prioritering nauwkeuriger</li>
+            <li><strong>Europees-soeverein</strong> &mdash; GPT-NL, Mistral, EuroHPC Groningen. Data onder Nederlandse jurisdictie, modellen die voldoen aan de EU AI Act. Minder afhankelijk van Amerikaanse Big Tech</li>
+            <li><strong>Experts op complexe problemen</strong> &mdash; data scientists besteden minder tijd aan rapportages en meer aan wat ze het beste kunnen: dijkstabiliteit modelleren, klimaatscenario's doorrekenen, verkeersstromen optimaliseren</li>
+          </ul>
+          <div class="phase-insight">
+            Het einddoel is bescheiden maar impactvol: een programma dat meetbaar bijdraagt aan de productiedoelstelling, met menselijk toezicht op elk besluit en transparantie naar de organisatie.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     TRACK RECORD
+     ════════════════════════════════════════════════════════ -->
+<section class="track">
+  <div class="section-inner">
+    <div class="section-label reveal" style="color: var(--amber);">Track record</div>
+    <h2 class="section-heading reveal reveal-delay-1">Wat ik meeneem</h2>
+    <p class="section-intro reveal reveal-delay-2">
+      Elke stap in mijn carri&egrave;re raakt aan wat deze rol vraagt: AI opschalen in complexe organisaties, werken binnen strikte kaders, en techniek verbinden met bestuurlijke besluitvorming.
+    </p>
+
+    <div class="track-grid">
+      <div class="track-card reveal">
+        <div class="track-card-label">Telecom &middot; Odido</div>
+        <h3>AI van pilot naar productie voor 6,9 miljoen klanten</h3>
+        <p>AI-modellen in productie gebracht die dagelijks draaien voor miljoenen gebruikers. De uitdaging was niet het model bouwen &mdash; maar de organisatie, processen en datapipelines klaar maken voor operationeel gebruik.</p>
+      </div>
+      <div class="track-card reveal reveal-delay-1">
+        <div class="track-card-label">Financi&euml;le sector &middot; a.s.r.</div>
+        <h3>Data-uitwisseling in gereguleerde omgeving</h3>
+        <p>Gewerkt aan datakoppelingen met Belastingdienst en UWV &mdash; zwaar gereguleerd, strikte privacy-eisen, complexe governance. De discipline die dat vereist is direct toepasbaar op de EU AI Act-verplichtingen van RWS.</p>
+      </div>
+      <div class="track-card reveal reveal-delay-2">
+        <div class="track-card-label">Internationaal</div>
+        <h3>AI-teams aangestuurd vanuit drie continenten</h3>
+        <p>Teams in San Francisco en Bangalore gemanaged. Geleerd om best practices te vertalen naar lokale context &mdash; wat in Silicon Valley werkt moet je niet blind kopi&euml;ren, maar kritisch aanpassen aan je organisatie.</p>
+      </div>
+      <div class="track-card reveal reveal-delay-3">
+        <div class="track-card-label">Academisch &middot; Stanford</div>
+        <h3>AI/ML &eacute;n Politicologie</h3>
+        <p>Technologie begrijpen &eacute;n de bestuurlijke context. Ik kan meepraten met data scientists over modelkeuzes, maar ook met bestuurders over maatschappelijke impact en verantwoord gebruik.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     EERLIJKHEID
+     ════════════════════════════════════════════════════════ -->
+<section class="eerlijk">
+  <div class="section-inner">
+    <div class="section-label reveal" style="color: var(--blue-l);">Eerlijk</div>
+    <h2 class="section-heading reveal reveal-delay-1" style="font-size: clamp(1.6rem, 3vw, 2.2rem);">Wat ik nog niet weet</h2>
+    <div class="eerlijk-content reveal reveal-delay-2">
+      <p>Ik ken Rijkswaterstaat nog niet van binnenuit. De specifieke dynamiek van CIV, de informele machtsverhoudingen, de cultuur op de werkvloer &mdash; dat moet ik leren.</p>
+      <p>Ik heb geen achtergrond in waterbouw of infrastructuurbeheer, en ik zal afhankelijk zijn van de domeinexperts om de technische context te begrijpen.</p>
+      <p class="eerlijk-maar">Wat ik w&eacute;l meeneem: het vermogen om snel te leren, de juiste vragen te stellen, en resultaten te boeken in omgevingen waar ik niet alles van tevoren weet. Dat heb ik bewezen bij elke organisatie waar ik ben binnengekomen.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ════════════════════════════════════════════════════════
+     CLOSING
+     ════════════════════════════════════════════════════════ -->
+<footer class="closing">
+  <div class="section-inner">
+    <div class="closing-quote reveal">
+      Ik bouw geen systemen &mdash; ik help organisaties om ze
+      <em>daadwerkelijk te gebruiken</em>.
+      De techniek kan ik, gereguleerde omgevingen ken ik,
+      en de brug daartussen is waar ik op mijn best ben.
+    </div>
+    <div class="closing-cta reveal reveal-delay-1">
+      Ik zou die brug graag slaan bij Rijkswaterstaat.
+    </div>
+    <div class="closing-name reveal reveal-delay-2">
+      Bernd Oostrum
+    </div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════
+     SCRIPTS
+     ════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Scroll Reveal ──────────────────────────────────── */
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(function (el) {
+    observer.observe(el);
+  });
+
+  /* ── Counter Animation ──────────────────────────────── */
+  const counterObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      if (el.dataset.done) return;
+      el.dataset.done = '1';
+
+      const target = parseInt(el.dataset.target);
+      const duration = 1800;
+      const start = performance.now();
+
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.counter').forEach(function (el) {
+    counterObserver.observe(el);
+  });
+
+  /* ── Scroll progress bar ──────────────────────────── */
+  var progressBar = document.getElementById('progressBar');
+
+  /* ── Fade out scroll hint ───────────────────────────── */
+  var hint = document.querySelector('.scroll-hint');
+
+  window.addEventListener('scroll', function () {
+    // Progress bar
+    var scrollTop = window.scrollY;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    if (progressBar) progressBar.style.width = progress + '%';
+
+    // Scroll hint fade
+    if (hint) {
+      if (scrollTop > 80) hint.style.opacity = '0';
+      else hint.style.opacity = '1';
+    }
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
